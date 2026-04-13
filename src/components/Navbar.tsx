@@ -12,19 +12,19 @@ const NavBar: React.FC = () => {
   const currentUser = session?.user?.email;
   const role = session?.user?.role;
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar expand="lg" style={{ backgroundColor: '#024731' }} variant="dark">
       <Container>
-        <Navbar.Brand href="/">Next.js Application Template</Navbar.Brand>
+        <Navbar.Brand href="/">UH ITS Email Helper</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto justify-content-start">
             {currentUser && (
               <>
-                <Nav.Link id="add-stuff-nav" href="/add" active={pathName === '/add'}>
-                  Add Stuff
+                <Nav.Link id="browse-nav" href="/list" active={pathName === '/list'}>
+                  Browse Templates
                 </Nav.Link>
-                <Nav.Link id="list-stuff-nav" href="/list" active={pathName === '/list'}>
-                  List Stuff
+                <Nav.Link id="add-nav" href="/add" active={pathName === '/add'}>
+                  Add Template
                 </Nav.Link>
               </>
             )}
