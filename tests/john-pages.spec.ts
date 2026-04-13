@@ -14,18 +14,18 @@ test('can authenticate a specific user', async ({ getUserPage }) => {
 
   // Now check for navigation links and headings
   await expect(
-    customUserPage.getByRole('link', { name: 'Add Stuff' })
+    customUserPage.getByRole('link', { name: 'Add Template' })
   ).toBeVisible({ timeout: 5000 });
   await expect(
-    customUserPage.getByRole('link', { name: 'List Stuff' })
+    customUserPage.getByRole('link', { name: 'Browse Templates' })
   ).toBeVisible({ timeout: 5000 });
 
-  await customUserPage.getByRole('link', { name: 'Add Stuff' }).click();
+  await customUserPage.getByRole('link', { name: 'Add Template' }).click();
   await expect(
     customUserPage.getByRole('heading', { name: 'Add Stuff' })
   ).toBeVisible({ timeout: 5000 });
 
-  await customUserPage.getByRole('link', { name: 'List Stuff' }).click();
+  await customUserPage.getByRole('link', { name: 'Browse Templates' }).click();
   await expect(
     customUserPage.getByRole('heading', { name: 'Stuff' })
   ).toBeVisible({ timeout: 5000 });
