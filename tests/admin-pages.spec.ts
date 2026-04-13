@@ -25,10 +25,10 @@ test('test access to admin page', async ({ getUserPage }) => {
     adminPage.getByRole('link', { name: 'Admin' })
   ).toBeVisible({ timeout: 5000 });
 
-  // Test Add Stuff adminPage
+  // Test Add Template adminPage
   await adminPage.getByRole('link', { name: 'Add Template' }).click();
   await expect(
-    adminPage.getByRole('heading', { name: 'Add Stuff' })
+    adminPage.getByRole('heading', { name: 'Add a Template' })
   ).toBeVisible({ timeout: 5000 });
 
   // Test Browse Templates adminPage
