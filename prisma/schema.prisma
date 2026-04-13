@@ -38,3 +38,12 @@ model Stuff {
   condition Condition @default(good)
   owner     String
 }
+
+model Post { 
+  id        Int     @id @default(autoincrement()) 
+  title     String
+  content   String?
+  published Boolean @default(false) 
+  author    User    @relation(fields: [authorId], references: [id]) 
+  authorId  Int
+} 
