@@ -31,10 +31,22 @@ enum Condition {
   poor
 }
 
+enum Category{
+  account
+}
+
 model Stuff {
   id        Int       @id @default(autoincrement())
   name      String
   quantity  Int
   condition Condition @default(good)
   owner     String
+}
+
+model Template{
+  id        Int       @id @default(autoincrement())
+  template  String 
+  category  Category
+  author    String
+  used      Int 
 }

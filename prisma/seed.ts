@@ -37,6 +37,19 @@ async function main() {
       },
     });
   }
+  config.defaultTemplates.forEach(async (template, index) => {
+    console.log(`  Adding Template: ${template.template} ${template.author}`);
+    await prisma.contact.upsert({
+      where: { id: index },
+      update: {}, 
+      create: {
+        template: template.template,
+        category,
+        author: template.author,
+        used: template.used,
+      },
+    });
+  });
 }
 main()
   .then(() => prisma.$disconnect())

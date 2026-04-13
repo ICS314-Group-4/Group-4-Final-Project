@@ -1,7 +1,7 @@
 'use server';
 
-import { Condition } from '@prisma/client';
-import { Stuff } from '@prisma/client';
+import { Condition, Category } from '@prisma/client';
+import { Stuff, Template } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
@@ -61,6 +61,41 @@ export async function deleteStuff(id: number) {
     where: { id },
   });
   // After deleting, redirect to the list page
+  redirect('/list');
+}
+
+/**
+ * Creates a new contact in the database.
+ * @param template, an object with the following properties: template, category, author, used.
+ */
+export async function addTemplate(template: { 
+  template: string;
+  category: string;
+  author: string;
+  used: number; 
+}) {
+  const category: Category = 'account';
+  await prisma.contact.create({
+    data: {
+      template: template.template,
+      category,
+      author: template.author,
+      used: template.used,
+    },
+  });
+  redirect('/list');
+}
+
+export async function editTemplate(template: Template) {
+  await prisma.contact.update({
+    where: { id: template.id },
+    data: {
+      template: template.template,
+      category: template.category,
+      author: template.author,
+      used: template.used,
+    },
+  });
   redirect('/list');
 }
 
