@@ -75,7 +75,7 @@ export async function addTemplate(template: {
   used: number; 
 }) {
   const category: Category = 'account';
-  await prisma.contact.create({
+  await prisma.template.create({
     data: {
       template: template.template,
       category,
@@ -87,7 +87,7 @@ export async function addTemplate(template: {
 }
 
 export async function editTemplate(template: Template) {
-  await prisma.contact.update({
+  await prisma.template.update({
     where: { id: template.id },
     data: {
       template: template.template,
@@ -96,6 +96,19 @@ export async function editTemplate(template: Template) {
       used: template.used,
     },
   });
+  redirect('/list');
+}
+
+/**
+ * Deletes an existing template from the database.
+ * @param id, the id of the template to delete.
+ */
+export async function deleteTemplate(id: number) {
+  // console.log(`deleteTemplate id: ${id}`);
+  await prisma.template.delete({
+    where: { id },
+  });
+  // After deleting, redirect to the list page
   redirect('/list');
 }
 
