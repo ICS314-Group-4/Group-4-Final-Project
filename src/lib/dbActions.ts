@@ -71,24 +71,23 @@ export async function deleteStuff(id: number) {
 export async function addTemplate(template: { template: string; category: string; author: string; used: number }) {
   let category: Category = 'account';
   if (template.category === 'google core') {
-    category = 'google core';
+    category = 'google_core';
   } else if (template.category === 'star') {
     category = 'star';
   } else if (template.category === 'duo mobile') {
-    category = 'duo mobile';
+    category = 'duo_mobile';
   } else if (template.category === 'lamaku') {
     category = 'lamaku';
   } else if (template.category === 'network') {
     category = 'network';
   } else if (template.category === 'general support') {
-    category = 'general support';
+    category = 'general_support';
   } else if (template.category === 'site licensed apps') {
-    category = 'site licensed apps';
-  } else {
+    category = 'site_licensed_apps';
+  } else if (template.category === 'other')   {
     category = 'other';
-  }
-  
-  }
+  }  
+}
   await prisma.template.create({
     data: {
       template: template.template,
