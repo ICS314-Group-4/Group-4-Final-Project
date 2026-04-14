@@ -23,7 +23,7 @@ model Stuff {
 
 model Template {
   id        Int       @id @default(autoincrement())
-  problem   String
+  title     String
   template  String
   category  Category 
   tags      String[]

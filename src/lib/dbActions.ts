@@ -66,9 +66,9 @@ export async function deleteStuff(id: number) {
 
 /**
  * Creates a new contact in the database.
- * @param template, an object with the following properties: template, category, author, used.
+ * @param template, an object with the following properties: title, template, category, author, tags, used.
  */
-export async function addTemplate(template: { template: string; category: string; author: string; used: number }) {
+export async function addTemplate(template: { title: string; template: string; category: string; author: string; tags: string[]; used: number }) {
   let category: Category = 'account';
   if (template.category === 'google core') {
     category = 'google_core';
@@ -88,8 +88,10 @@ export async function addTemplate(template: { template: string; category: string
 
   await prisma.template.create({
     data: {
+      title: template.title,
       template: template.template,
       category,
+      tags: template.tags,
       author: template.author,
       used: template.used,
     },
@@ -101,8 +103,10 @@ export async function editTemplate(template: Template) {
   await prisma.template.update({
     where: { id: template.id },
     data: {
+      title: template.title,
       template: template.template,
       category: template.category,
+      tags: template.tags,
       author: template.author,
       used: template.used,
     },

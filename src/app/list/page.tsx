@@ -30,7 +30,7 @@ const ListPage = async () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Problem Description / Title</th>
+                  <th>Title</th>
                   <th>Template</th>
                   <th>Author</th>
                   <th>Category</th>
