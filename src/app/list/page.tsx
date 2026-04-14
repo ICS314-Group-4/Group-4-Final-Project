@@ -1,6 +1,6 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 import { prisma } from '@/lib/prisma';
-import StuffItem from '@/components/StuffItem';
+import TemplateItem from '@/components/StuffItem';
 import { loggedInProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
 
@@ -25,19 +25,20 @@ const ListPage = async () => {
       <Container id="list" fluid className="py-3">
         <Row>
           <Col>
-            <h1>Stuff</h1>
+            <h1>Template</h1>
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Condition</th>
-                  <th>Actions</th>
+                  <th>ID</th>
+                  <th>Template</th>
+                  <th>Author</th>
+                  <th>Category</th>
+                  <th>Used</th>
                 </tr>
               </thead>
               <tbody>
                 {stuff.map((item) => (
-                  <StuffItem key={item.id} {...item} />
+                  <TemplateItem key={item.id} {...item} />
                 ))}
               </tbody>
             </Table>
