@@ -2,12 +2,14 @@ import { Template } from '@prisma/client';
 import Link from 'next/link';
 
 /* Renders a single row in the List Template table. See list/page.tsx. */
-const TemplateItem = ({ id, template, author, category, used }: Template) => (
+const TemplateItem = ({ id, problem, template, author, category, tags, used }: Template) => (
   <tr>
     <td>{id}</td>
+    <td>{problem}</td>
     <td>{template}</td>
     <td>{author}</td>
     <td>{category}</td>
+    <td>{tags.join(', ')}</td>
     <td>{used}</td>
     <td>
       <Link href={`/edit/${id}`}>Edit</Link>

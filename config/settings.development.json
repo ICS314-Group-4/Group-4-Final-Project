@@ -10,6 +10,6 @@
     { "name": "Boogie Board", "quantity": 2, "owner": "admin@foo.com", "condition": "excellent" }
   ],
   "defaultTemplate": [
-    { "template": "Test Template", "author": "john@foo.com", "category": "account", "used": 3 }
+    { "problem": "Test Problem", "template": "Test Template", "author": "john@foo.com", "category": "account", "tags": ["tag1", "tag2"], "used": 3 }
   ]
 }

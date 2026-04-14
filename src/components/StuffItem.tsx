@@ -1,16 +1,18 @@
-import { Stuff } from '@prisma/client';
+import { Template } from '@prisma/client';
 import Link from 'next/link';
 
-/* Renders a single row in the List Stuff table. See list/page.tsx. */
-const StuffItem = ({ name, quantity, condition, id }: Stuff) => (
+/* Renders a single row in the List Template table. See list/page.tsx. */
+const TemplateItem = ({ id, template, author, category, used }: Template) => (
   <tr>
-    <td>{name}</td>
-    <td>{quantity}</td>
-    <td>{condition}</td>
+    <td>{id}</td>
+    <td>{template}</td>
+    <td>{author}</td>
+    <td>{category}</td>
+    <td>{used}</td>
     <td>
       <Link href={`/edit/${id}`}>Edit</Link>
     </td>
   </tr>
 );
 
-export default StuffItem;
+export default TemplateItem;

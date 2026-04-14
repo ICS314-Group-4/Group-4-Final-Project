@@ -13,10 +13,10 @@ const ListPage = async () => {
       user: { email: string; id: string; name: string };
     } | null,
   );
-  const owner = (session && session.user && session.user.email) || '';
-  const stuff = await prisma.stuff.findMany({
+  const author = (session && session.user && session.user.email) || '';
+  const template = await prisma.template.findMany({
     where: {
-      owner,
+      author,
     },
   });
   // console.log(stuff);
@@ -30,14 +30,16 @@ const ListPage = async () => {
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Problem Description / Title</th>
                   <th>Template</th>
                   <th>Author</th>
                   <th>Category</th>
+                  <th>Tags</th>
                   <th>Used</th>
                 </tr>
               </thead>
               <tbody>
-                {stuff.map((item) => (
+                {template.map((item) => (
                   <TemplateItem key={item.id} {...item} />
                 ))}
               </tbody>

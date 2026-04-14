@@ -62,8 +62,8 @@ const AddTemplateForm: React.FC = () => {
             <Form.Label className="fw-semibold">Category</Form.Label>
             <Form.Select>
               <option value="">Select a category...</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
               ))}
             </Form.Select>
           </Form.Group>

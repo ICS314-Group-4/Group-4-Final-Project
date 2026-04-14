@@ -44,8 +44,10 @@ async function main() {
       where: { id: config.defaultTemplate.indexOf(template) + 1 },
       update: {}, 
       create: {
+        problem: template.problem,
         template: template.template,
         category,
+        tags: template.tags,
         author: template.author,
         used: template.used,
       },
