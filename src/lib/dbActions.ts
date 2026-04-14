@@ -1,7 +1,7 @@
 'use server';
 
-import { Condition } from '@prisma/client';
-import { Stuff } from '@prisma/client';
+import { Condition, Category } from '@prisma/client';
+import { Stuff, Template } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
@@ -58,6 +58,65 @@ export async function editStuff(stuff: Stuff) {
 export async function deleteStuff(id: number) {
   // console.log(`deleteStuff id: ${id}`);
   await prisma.stuff.delete({
+    where: { id },
+  });
+  // After deleting, redirect to the list page
+  redirect('/list');
+}
+
+/**
+ * Creates a new contact in the database.
+ * @param template, an object with the following properties: template, category, author, used.
+ */
+export async function addTemplate(template: { template: string; category: string; author: string; used: number }) {
+  let category: Category = 'account';
+  if (template.category === 'google core') {
+    category = 'google_core';
+  } else if (template.category === 'star') {
+    category = 'star';
+  } else if (template.category === 'duo mobile') {
+    category = 'duo_mobile';
+  } else if (template.category === 'lamaku') {
+    category = 'lamaku';
+  } else if (template.category === 'network') {
+    category = 'network';
+  } else if (template.category === 'general support') {
+    category = 'general_support';
+  } else if (template.category === 'site licensed apps') {
+    category = 'site_licensed_apps';
+  }
+
+  await prisma.template.create({
+    data: {
+      template: template.template,
+      category,
+      author: template.author,
+      used: template.used,
+    },
+  });
+  redirect('/list');
+}
+
+export async function editTemplate(template: Template) {
+  await prisma.template.update({
+    where: { id: template.id },
+    data: {
+      template: template.template,
+      category: template.category,
+      author: template.author,
+      used: template.used,
+    },
+  });
+  redirect('/list');
+}
+
+/**
+ * Deletes an existing template from the database.
+ * @param id, the id of the template to delete.
+ */
+export async function deleteTemplate(id: number) {
+  // console.log(`deleteTemplate id: ${id}`);
+  await prisma.template.delete({
     where: { id },
   });
   // After deleting, redirect to the list page
