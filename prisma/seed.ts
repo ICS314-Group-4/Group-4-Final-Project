@@ -37,11 +37,11 @@ async function main() {
       },
     });
   }
-  config.defaultTemplate.forEach(async (template, index) => {
-    const category = template.category as Category || Category.account;
-    console.log(`  Adding Template: ${template.template} ${template.author}`);
+  for (const template of config.defaultTemplate) {
+    const category = (template.category as Category) || Category.account;
+    console.log(`  Adding Template: ${template.template}`);
     await prisma.template.upsert({
-      where: { id: index },
+      where: { id: config.defaultTemplate.indexOf(template) + 1 },
       update: {}, 
       create: {
         template: template.template,
@@ -50,7 +50,7 @@ async function main() {
         used: template.used,
       },
     });
-  });
+  }
 }
 main()
   .then(() => prisma.$disconnect())
