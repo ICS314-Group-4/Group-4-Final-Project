@@ -21,7 +21,7 @@ model Stuff {
   owner     String
 }
 
-model Template{
+model Template {
   id        Int       @id @default(autoincrement())
   template  String
   category  Category 

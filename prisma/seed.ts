@@ -40,7 +40,7 @@ async function main() {
   config.defaultTemplate.forEach(async (template, index) => {
     const category = template.category as Category || Category.account;
     console.log(`  Adding Template: ${template.template} ${template.author}`);
-    await prisma.contact.upsert({
+    await prisma.template.upsert({
       where: { id: index },
       update: {}, 
       create: {
