@@ -68,13 +68,27 @@ export async function deleteStuff(id: number) {
  * Creates a new contact in the database.
  * @param template, an object with the following properties: template, category, author, used.
  */
-export async function addTemplate(template: { 
-  template: string;
-  category: string;
-  author: string;
-  used: number; 
-}) {
-  const category: Category = 'account';
+export async function addTemplate(template: { template: string; category: string; author: string; used: number }) {
+  let category: Category = 'account';
+  if (template.category === 'google core') {
+    category = 'google core';
+  } else if (template.category === 'star') {
+    category = 'star';
+  } else if (template.category === 'duo mobile') {
+    category = 'duo mobile';
+  } else if (template.category === 'lamaku') {
+    category = 'lamaku';
+  } else if (template.category === 'network') {
+    category = 'network';
+  } else if (template.category === 'general support') {
+    category = 'general support';
+  } else if (template.category === 'site licensed apps') {
+    category = 'site licensed apps';
+  } else {
+    category = 'other';
+  }
+  
+  }
   await prisma.template.create({
     data: {
       template: template.template,
