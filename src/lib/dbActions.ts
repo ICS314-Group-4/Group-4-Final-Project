@@ -84,10 +84,8 @@ export async function addTemplate(template: { template: string; category: string
     category = 'general_support';
   } else if (template.category === 'site licensed apps') {
     category = 'site_licensed_apps';
-  } else if (template.category === 'other')   {
-    category = 'other';
-  }  
-}
+  }
+
   await prisma.template.create({
     data: {
       template: template.template,

@@ -50,5 +50,4 @@ enum Category {
   network
   general_support
   site_licensed_apps
-  other
 }
