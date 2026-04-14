@@ -16,8 +16,6 @@ body {
   height: 100%;
   padding: 0;
   margin: 0;
-  background: fixed center url("/ITS Building.jpg");
-  background-size: cover;
 }
 footer, footer a {
   color: var(--nat-navbar-text-color);

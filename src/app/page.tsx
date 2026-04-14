@@ -1,5 +1,5 @@
 import { Col, Container, Image, Row } from 'react-bootstrap';
-import { Mailbox2Flag, People, PeopleFill } from 'react-bootstrap-icons';
+import { Mailbox2Flag, Envelope, Search, People, PeopleFill } from 'react-bootstrap-icons';
 
 /** The Home page. */
 const Home = () => (
@@ -12,14 +12,19 @@ const Home = () => (
           <p>Create and share your own templates or browse and save your favorites. Save time with templates created by fellow ITS student workers</p>
           <div className='d-flex gap-3 mb-4 flex-wrap'>
             <button>
-              Explore templates
+                  <Envelope className="me-2" /> Create a template
             </button>
             <button>
-              Create a template
+              <Search className="me-2"/> Search templates
             </button>
           </div>
         </Col>
       </Row>
+      </Container>
+      <Container>
+        <Row className="align-middle text-center">
+
+        </Row>
       </Container>
     </Container>
   </main>
