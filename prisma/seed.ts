@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Condition } from '@prisma/client';
+import { PrismaClient, Role, Condition, Category } from '@prisma/client';
 import { hash } from 'bcrypt';
 import * as config from '../config/settings.development.json';
 
@@ -37,7 +37,8 @@ async function main() {
       },
     });
   }
-  config.defaultTemplates.forEach(async (template, index) => {
+  config.defaultTemplate.forEach(async (template, index) => {
+    const category = template.category as Category || Category.account;
     console.log(`  Adding Template: ${template.template} ${template.author}`);
     await prisma.contact.upsert({
       where: { id: index },

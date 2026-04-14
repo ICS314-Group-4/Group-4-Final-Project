@@ -1,20 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-}
-
-enum Role {
-  USER
-  ADMIN
+  provider = "postgresql"
 }
 
 model User {
@@ -22,17 +11,6 @@ model User {
   email    String @unique
   password String
   role     Role   @default(USER)
-}
-
-enum Condition {
-  excellent
-  good
-  fair
-  poor
-}
-
-enum Category{
-  account
 }
 
 model Stuff {
@@ -45,8 +23,24 @@ model Stuff {
 
 model Template{
   id        Int       @id @default(autoincrement())
-  template  String 
-  category  Category
+  template  String
+  category  Category 
   author    String
-  used      Int 
+  used      Int
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Condition {
+  excellent
+  good
+  fair
+  poor
+}
+
+enum Category {
+  account
 }

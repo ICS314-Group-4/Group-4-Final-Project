@@ -9,7 +9,7 @@
     { "name": "Banana", "quantity": 2, "owner": "admin@foo.com", "condition": "good" },
     { "name": "Boogie Board", "quantity": 2, "owner": "admin@foo.com", "condition": "excellent" }
   ],
-  "defaultTemplates": [
+  "defaultTemplate": [
     { "template": "Test Template", "author": "john@foo.com", "category": "account", "used": 3 }
   ]
 }
