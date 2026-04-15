@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 /* Renders a single row in the List Template table. See list/page.tsx. */
 const TemplateItemAdmin = ({ id, title, template, author, category, tags, used }: Template) => (
-  <tr>
+  <tr className="align-middle">
     <td>{id}</td>
     <td>{title}</td>
     <td>{template}</td>
@@ -12,8 +12,8 @@ const TemplateItemAdmin = ({ id, title, template, author, category, tags, used }
     <td>{tags.join(', ')}</td>
     <td>{used}</td>
     <td>
-      <Link href={`/edit/${id}`}>Edit</Link>
-      <Link href={`/view/${id}`}>View</Link>
+      <div><Link href={`/edit/${id}`}>Edit</Link></div>
+      <div><Link href={`/view/${id}`}>View</Link></div>
     </td>
   </tr>
 );
