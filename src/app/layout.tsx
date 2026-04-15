@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "UH ITS Email Helper",
-  description: "Create, save, share, and explore email templates created by fellow ITS student workers.",
+  description: "Create, share, explore, and save email templates created by fellow ITS student workers. ",
 };
 
 export default function RootLayout({
