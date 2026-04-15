@@ -23,7 +23,7 @@ model Stuff {
 
 model Template {
   id        Int       @id @default(autoincrement())
-  title     String
+  title     String    @unique   
   template  String
   category  Category 
   tags      String[]
