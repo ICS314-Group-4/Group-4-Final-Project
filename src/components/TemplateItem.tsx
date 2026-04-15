@@ -12,7 +12,6 @@ const TemplateItem = ({ id, title, template, author, category, tags, used }: Tem
     <td>{tags.join(', ')}</td>
     <td>{used}</td>
     <td>
-      <Link href={`/edit/${id}`}>Edit</Link>
       <Link href={`/view/${id}`}>View</Link>
     </td>
   </tr>
