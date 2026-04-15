@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
 const categories = [
-  'Account & Login Issues',
-  'WiFi & Network',
-  'Email & Outlook',
-  'Software & Licensing',
-  'Laulima & Canvas',
-  'Hardware Support',
-  'Printing & Mahalo Cards',
-  'General & Other',
+  'Google Core/Consumer Apps',
+  'STAR/Banner',
+  'UH Account',
+  'Duo Mobile/MFA',
+  'Lamaku/Laulima LMS',
+  'Network/Printing',
+  'General Support',
+  'Site License',
 ];
 
 const AddTemplateForm: React.FC = () => {

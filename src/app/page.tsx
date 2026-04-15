@@ -3,14 +3,14 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
 const categories = [
-  { id: 1, name: 'Account & Login Issues', count: 42 },
-  { id: 2, name: 'WiFi & Network', count: 28 },
-  { id: 3, name: 'Email & Outlook', count: 36 },
-  { id: 4, name: 'Software & Licensing', count: 31 },
-  { id: 5, name: 'Laulima & Canvas', count: 22 },
-  { id: 6, name: 'Hardware Support', count: 19 },
-  { id: 7, name: 'Printing & Mahalo Cards', count: 14 },
-  { id: 8, name: 'General & Other', count: 55 },
+  { id: 1, name: 'Google Core/Consumer Apps', count: 0 },
+  { id: 2, name: 'STAR/Banner', count: 0 },
+  { id: 3, name: 'UH Account', count: 0 },
+  { id: 4, name: 'Duo Mobile/MFA', count: 0 },
+  { id: 5, name: 'Lamaku/Laulima LMS', count: 0 },
+  { id: 6, name: 'Network/Printing', count: 0 },
+  { id: 7, name: 'General Support', count: 0 },
+  { id: 8, name: 'Site License', count: 0 },
 ];
 
 const Home = () => (
