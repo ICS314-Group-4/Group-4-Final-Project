@@ -2,7 +2,7 @@ import { Template } from '@prisma/client';
 import Link from 'next/link';
 
 /* Renders a single row in the List Template table. See list/page.tsx. */
-const TemplateItem = ({ id, title, template, author, category, tags, used }: Template) => (
+const TemplateItemAdmin = ({ id, title, template, author, category, tags, used }: Template) => (
   <tr>
     <td>{id}</td>
     <td>{title}</td>
@@ -18,4 +18,4 @@ const TemplateItem = ({ id, title, template, author, category, tags, used }: Tem
   </tr>
 );
 
-export default TemplateItem;
+export default TemplateItemAdmin;
