@@ -27,7 +27,7 @@ test('can authenticate a specific user', async ({ getUserPage }) => {
 
   await customUserPage.getByRole('link', { name: 'Browse Templates' }).click();
   await expect(
-    customUserPage.getByRole('heading', { name: 'Stuff' })
+    customUserPage.getByRole('heading', { name: 'Browse Templates' })
   ).toBeVisible({ timeout: 5000 });
 
 });

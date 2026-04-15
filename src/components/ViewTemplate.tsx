@@ -1,72 +1,165 @@
 'use client';
 
 import { useState } from 'react';
-import { Col, Container, Row, Card, ListGroup, Button } from 'react-bootstrap';
+import { Container, Button, Form } from 'react-bootstrap';
 import { Template } from '@prisma/client';
+import { categoryLabels } from '@/lib/categoryLabels';
+
+const MOCK_COMMENTS = [
+  { initials: 'M', name: 'Maile A.', time: '2 days ago', body: 'This one has saved me so many times during peak hours.' },
+  { initials: 'T', name: 'Tyler N.', time: '1 day ago', body: 'Heads up — double check the URL in step 3, it may have changed recently.' },
+];
 
 export default function ViewTemplate({ item }: { item: Template }) {
   const [copied, setCopied] = useState(false);
+  const [comment, setComment] = useState('');
 
   const handleCopy = async () => {
     try {
-      // Pulling the actual template body/description
-      const textToCopy = item.template || "";
-      await navigator.clipboard.writeText(textToCopy);
-      
+      await navigator.clipboard.writeText(item.template || '');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Failed to copy:', err);
     }
   };
 
   return (
-    <Container className="py-5" >
-      <Row className="justify-content-center" >
-        <Col md={8}>
-          <Card className="shadow-sm">
-            <Card.Header className="text-white d-flex justify-content-between align-items-center py-3"
-            style={{ backgroundColor: '#024731'}} >
-              <h5 className="mb-0">{item.title}</h5>
-              <Button 
-                variant={copied ? "secondary" : "light"} 
-                size="sm" 
-                onClick={handleCopy}
-                className="fw-bold"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </Button>
-            </Card.Header>
-            
-            <Card.Body>
-              {/* Display the actual Template Content in a readable box */}
-              <div className="p-4 bg-light border rounded mb-4">
-                <p className="text-muted small mb-2 uppercase fw-bold">Template Content:</p>
-                <pre style={{ 
-                  whiteSpace: 'pre-wrap', 
-                  marginBottom: 0,
-                  fontFamily: 'inherit',
-                  fontSize: '1.1rem' 
-                }}>
-                  {item.template}
-                </pre>
-              </div>
+    <main>
+      {/* Header */}
+      <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
+        <Container>
+          <div className="text-uppercase mb-1" style={{ fontSize: '0.75rem', opacity: 0.7, letterSpacing: '0.1em' }}>
+            {categoryLabels[item.category]}
+          </div>
+          <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
+          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>
+            By {item.author}
+          </p>
+        </Container>
+      </div>
 
-              <ListGroup variant="flush" className="small border rounded">
-                <ListGroup.Item><strong>Author:</strong> {item.author}</ListGroup.Item>
-                <ListGroup.Item><strong>Category:</strong> {item.category}</ListGroup.Item>
-                <ListGroup.Item><strong>Tags:</strong> {item.tags.join(', ')}</ListGroup.Item>
-              </ListGroup>
-              
-              <div className="mt-4">
-                <a href="/list" className="btn btn-outline-secondary">
-                  Back to List
-                </a>
+      <Container className="py-5" style={{ maxWidth: '800px' }}>
+
+        {/* Stats row */}
+        <div className="d-flex gap-4 mb-4 pb-3" style={{ borderBottom: '1px solid #dee2e6' }}>
+          <div>
+            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{item.used ?? 0}</div>
+            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Times Used</div>
+          </div>
+          <div>
+            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>—</div>
+            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Copies</div>
+          </div>
+          <div>
+            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{MOCK_COMMENTS.length}</div>
+            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Comments</div>
+          </div>
+        </div>
+
+        {/* Email body */}
+        <div className="mb-2 d-flex justify-content-between align-items-center">
+          <span className="fw-semibold">Email Template</span>
+          <Button
+            size="sm"
+            onClick={handleCopy}
+            style={{
+              backgroundColor: copied ? '#6c757d' : '#024731',
+              border: 'none',
+              minWidth: '90px',
+            }}
+          >
+            {copied ? 'Copied!' : 'Copy'}
+          </Button>
+        </div>
+        <div
+          className="p-4 mb-4"
+          style={{
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #dee2e6',
+            borderRadius: '0.375rem',
+          }}
+        >
+          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.95rem', marginBottom: 0 }}>
+            {item.template}
+          </pre>
+        </div>
+
+        {/* Tags */}
+        {item.tags?.length > 0 && (
+          <div className="d-flex flex-wrap gap-2 mb-5">
+            {item.tags.map(tag => (
+              <span
+                key={tag}
+                className="badge fw-normal"
+                style={{ backgroundColor: '#024731', fontSize: '0.8rem' }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Comments */}
+        <div style={{ borderTop: '1.5px solid #212529' }} className="pt-4">
+          <h5 className="fw-bold mb-4">Comments</h5>
+
+          {MOCK_COMMENTS.map((c, i) => (
+            <div key={i} className="d-flex gap-3 mb-4">
+              <div
+                className="d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle text-white fw-bold"
+                style={{ width: '38px', height: '38px', backgroundColor: '#024731', fontSize: '0.9rem' }}
+              >
+                {c.initials}
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              <div>
+                <div className="d-flex gap-2 align-items-baseline mb-1">
+                  <span className="fw-semibold" style={{ fontSize: '0.9rem' }}>{c.name}</span>
+                  <span className="text-muted" style={{ fontSize: '0.78rem' }}>{c.time}</span>
+                </div>
+                <p className="mb-0" style={{ fontSize: '0.9rem' }}>{c.body}</p>
+              </div>
+            </div>
+          ))}
+
+          {/* Comment input */}
+          <div className="d-flex gap-3 mt-3">
+            <div
+              className="d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle text-white fw-bold"
+              style={{ width: '38px', height: '38px', backgroundColor: '#6c757d', fontSize: '0.9rem' }}
+            >
+              ?
+            </div>
+            <div className="flex-grow-1">
+              <Form.Control
+                as="textarea"
+                rows={2}
+                placeholder="Add a comment or suggestion..."
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                style={{ fontSize: '0.9rem' }}
+              />
+              {comment.trim() && (
+                <Button
+                  size="sm"
+                  className="mt-2"
+                  style={{ backgroundColor: '#024731', border: 'none' }}
+                  onClick={() => setComment('')}
+                >
+                  Post
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Back */}
+        <div className="mt-5">
+          <a href="/list" className="text-muted" style={{ fontSize: '0.9rem' }}>
+            ← Back to Browse
+          </a>
+        </div>
+      </Container>
+    </main>
   );
 }

@@ -23,8 +23,7 @@ export default async function ViewTemplatePage({ params }: { params: { id: strin
     },
   });
 
-  // Security: 404 if it doesn't exist or isn't the user's
-  if (!item || item.author !== session?.user?.email) {
+  if (!item) {
     return notFound();
   }
 
