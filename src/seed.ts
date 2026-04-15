@@ -1,5 +1,5 @@
 import { prisma } from './lib/prisma';
-import { Role, Condition } from '@prisma/client';
+import { Role, Condition, Category } from '@prisma/client';
 import { hash } from 'bcrypt';
 import * as config from '../config/settings.development.json';
 
@@ -32,6 +32,23 @@ async function main() {
         quantity: data.quantity,
         owner: data.owner,
         condition,
+      },
+    });
+  }
+  for (const template of config.defaultTemplate) {
+    const category = template.category as Category || Category.account;
+    console.log(`  Adding ${template.author}'s Template: ${template.title}`);
+     
+    await prisma.template.upsert({
+      where: { title: template.title },
+      update: {},
+      create: {
+        title: template.title,
+        template: template.template,
+        category,
+        tags: template.tags,
+        author: template.author,
+        used: template.used,
       },
     });
   }

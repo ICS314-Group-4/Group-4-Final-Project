@@ -59,3 +59,4 @@ package-lock.json
 tests/playwright-auth-sessions/
 
 /generated/prisma
+.env*.local

@@ -13,26 +13,26 @@ test('test access to admin page', async ({ getUserPage }) => {
 
   // Check for navigation elements
   await expect(
-    adminPage.getByRole('link', { name: 'Next.js Application Template' })
+    adminPage.getByRole('link', { name: 'UH ITS Email Helper' })
   ).toBeVisible({ timeout: 5000 });
   await expect(
-    adminPage.getByRole('link', { name: 'Add Stuff' })
+    adminPage.getByRole('link', { name: 'Add Template' })
   ).toBeVisible({ timeout: 5000 });
   await expect(
-    adminPage.getByRole('link', { name: 'List Stuff' })
+    adminPage.getByRole('link', { name: 'Browse Templates' })
   ).toBeVisible({ timeout: 5000 });
   await expect(
     adminPage.getByRole('link', { name: 'Admin' })
   ).toBeVisible({ timeout: 5000 });
 
-  // Test Add Stuff adminPage
-  await adminPage.getByRole('link', { name: 'Add Stuff' }).click();
+  // Test Add Template adminPage
+  await adminPage.getByRole('link', { name: 'Add Template' }).click();
   await expect(
-    adminPage.getByRole('heading', { name: 'Add Stuff' })
+    adminPage.getByRole('heading', { name: 'Add a Template' })
   ).toBeVisible({ timeout: 5000 });
 
-  // Test List Stuff adminPage
-  await adminPage.getByRole('link', { name: 'List Stuff' }).click();
+  // Test Browse Templates adminPage
+  await adminPage.getByRole('link', { name: 'Browse Templates' }).click();
   await expect(
     adminPage.getByRole('heading', { name: 'Stuff' })
   ).toBeVisible({ timeout: 5000 });

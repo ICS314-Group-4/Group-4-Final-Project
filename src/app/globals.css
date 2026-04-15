@@ -40,4 +40,7 @@ body .navbar {
 }
 .button:hover{
   background-color: var(--uh-green-dark);
+
+#template-item .template-tag {
+  background-color: var(--uh-green) !important;
 }

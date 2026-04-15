@@ -5,8 +5,19 @@ import { BookmarkPlus, Search, Pen, Share } from 'react-bootstrap-icons';
 import Button from 'react-bootstrap/Button';
 import Carousel from 'react-bootstrap/Carousel';
 import Card from 'react-bootstrap/Card';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
-/** The Home page. */
+const categories = [
+  { id: 1, name: 'Google Core/Consumer Apps', count: 0 },
+  { id: 2, name: 'STAR/Banner', count: 0 },
+  { id: 3, name: 'UH Account', count: 0 },
+  { id: 4, name: 'Duo Mobile/MFA', count: 0 },
+  { id: 5, name: 'Lamaku/Laulima LMS', count: 0 },
+  { id: 6, name: 'Network/Printing', count: 0 },
+  { id: 7, name: 'General Support', count: 0 },
+  { id: 8, name: 'Site License', count: 0 },
+];
+
 const Home = () => (
   <main>
     {/* Hero section */}
@@ -151,6 +162,21 @@ const Home = () => (
         </Carousel>
       </Container>
     </Container>
+
+    {/* CTA */}
+    <div style={{ backgroundColor: '#f8f9fa', borderTop: '1px solid #dee2e6' }} className="py-4">
+      <Container className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <h5 className="mb-1">Just answered something new?</h5>
+          <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
+            Save your reply as a template so the whole team can use it.
+          </p>
+        </div>
+        <Button href="/add" style={{ backgroundColor: '#024731', border: 'none' }}>
+          + Add a Template
+        </Button>
+      </Container>
+    </div>
   </main>
 );
 
