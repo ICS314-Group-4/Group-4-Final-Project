@@ -1,10 +1,10 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 import { prisma } from '@/lib/prisma';
-import TemplateItem from '@/components/StuffItem';
+import TemplateItem from '@/components/TemplateItem';
 import { loggedInProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
 
-/** Render a list of stuff for the logged in user. */
+/** Render a list of templates for the logged in user. */
 const ListPage = async () => {
   // Protect the page, only logged in users can access it.
   const session = await auth();
@@ -19,7 +19,7 @@ const ListPage = async () => {
       author,
     },
   });
-  // console.log(stuff);
+  // console.log(template);
   return (
     <main>
       <Container id="list" fluid className="py-3">

@@ -13,6 +13,7 @@ const TemplateItem = ({ id, template, author, category, used, title, tags }: Tem
     <td>{used}</td>
     <td>
       <Link href={`/edit/${id}`}>Edit</Link>
+      <Link href={`/view/${id}`}>View</Link>
     </td>
   </tr>
 );

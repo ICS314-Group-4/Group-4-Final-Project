@@ -37,7 +37,7 @@ async function main() {
   }
   for (const template of config.defaultTemplate) {
     const category = template.category as Category || Category.account;
-    console.log(`  Adding ${template.author}'s Template: ${template.template}`);
+    console.log(`  Adding ${template.author}'s Template: ${template.title}`);
      
     await prisma.template.upsert({
       where: { id: config.defaultTemplate.indexOf(template) + 1 },

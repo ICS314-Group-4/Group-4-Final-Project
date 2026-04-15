@@ -1,53 +1,36 @@
-import { Col, Container, Row, Card, ListGroup } from 'react-bootstrap';
-import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { Template } from '@prisma/client';
 import { loggedInProtectedPage } from '@/lib/page-protection';
+import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import ViewTemplate from '@/components/ViewTemplate'; // Import the UI component
 
-export default async function ViewTemplatePage({ params }: { params: { id: string } }) {
+export default async function ViewTemplatePage({ params }: { params: { id: string | string[] } }) {
+  const { id } = await params;
+
+  // Protect the page
   const session = await auth();
-  
-  // Apply the same protection as your ListPage
   loggedInProtectedPage(
     session as {
       user: { email: string; id: string; name: string };
     } | null,
   );
 
-  // Fetch the specific template
-  // If your ID in Prisma is an Int, use Number(params.id). If it's a String/UUID, use params.id
-  const item = await prisma.stuff.findUnique({
-    where: { id: Number(params.id) },
+  const viewID: number = +id;
+  const item: Template | null = await prisma.template.findUnique({
+    where: {
+      id: viewID,
+    },
   });
 
-  // Basic security: 404 if it doesn't exist or isn't yours
-  if (!item || item.owner !== session?.user?.email) {
-    notFound();
+  // Security: 404 if it doesn't exist or isn't the user's
+  if (!item || item.author !== session?.user?.email) {
+    return notFound();
   }
 
   return (
     <main>
-      <Container className="py-5">
-        <Row className="justify-content-center">
-          <Col md={6}>
-            <Card>
-              <Card.Header as="h5">Template Inspection</Card.Header>
-              <Card.Body>
-                <Card.Title className="display-6 mb-4">{item.name}</Card.Title>
-                <ListGroup variant="flush">
-                  <ListGroup.Item><strong>Database ID:</strong> {item.id}</ListGroup.Item>
-                  <ListGroup.Item><strong>Author:</strong> {item.owner}</ListGroup.Item>
-                  <ListGroup.Item><strong>Category:</strong> {item.condition}</ListGroup.Item>
-                  <ListGroup.Item><strong>Times Used:</strong> {item.quantity}</ListGroup.Item>
-                </ListGroup>
-                <div className="mt-4">
-                  <a href="/list" className="btn btn-secondary">Back to List</a>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+      <ViewTemplate item={item} />
     </main>
   );
 }
