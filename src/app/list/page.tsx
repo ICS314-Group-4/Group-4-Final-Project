@@ -13,34 +13,39 @@ const ListPage = async () => {
       user: { email: string; id: string; name: string };
     } | null,
   );
-  const author = (session && session.user && session.user.email) || '';
-  const template = await prisma.template.findMany({
-    where: {
-      author,
-    },
-  });
+  // const author = (session && session.user && session.user.email) || '';
+  // ^ kept this in case we want to add an edit button for the signed in user's templates
+
+  const template = await prisma.template.findMany({});
   // console.log(template);
   return (
     <main>
-      <Container id="list" fluid className="py-3">
+      <Container id="list-templates-page" fluid className="py-3 px-4">
         <Row>
           <Col>
-            <h1>Template</h1>
-            <Table striped bordered hover>
+            <h2 className='mb-4 text-center'>List Templates</h2>
+            <Table
+              hover
+              responsive
+              className="w-100 overflow-auto"
+              style={{ tableLayout: 'fixed' }}
+            >
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Template</th>
-                  <th>Author</th>
-                  <th>Category</th>
-                  <th>Tags</th>
-                  <th>Used</th>
+                  <th className="py-3" style={{ width: '3%' }}>ID</th>
+                  <th className="py-3" style={{ width: '37%' }}>Template</th>
+                  <th className="py-3" style={{ width: '15%' }}>Category</th>
+                  <th className="py-3" style={{ width: '15%' }}>Author</th>
+                  <th className="py-3" style={{ width: '12%' }}>Used</th>
+                  <th className="py-3" style={{ width: '3%' }}></th>
                 </tr>
               </thead>
               <tbody>
-                {template.map((item) => (
-                  <TemplateItem key={item.id} {...item} />
+                {template.map((template) => (
+                  <TemplateItem
+                    key={template.id}
+                    template={template}
+                  />
                 ))}
               </tbody>
             </Table>
