@@ -7,6 +7,7 @@
   --nat-navbar-highlight-bg: 0, 0, 139;
   --nat-navbar-text-highlight: khaki;
   --uh-green: #024731;
+  --uh-green-dark: #001D02;
 }
 html,
 body {
@@ -38,5 +39,5 @@ body .navbar {
   background-color: var(--uh-green);
 }
 .button:hover{
-  background-color: darkgreen;
+  background-color: var(--uh-green-dark);
 }
