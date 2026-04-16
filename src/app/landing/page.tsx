@@ -1,13 +1,10 @@
 'use client';
 
-import { Col, Container, Image, Row } from 'react-bootstrap';
+import { Col, Container, Image, Row, Card, Button, Carousel } from 'react-bootstrap';
 import { BookmarkPlus, Search, Pen, Share } from 'react-bootstrap-icons';
-import Button from 'react-bootstrap/Button';
-import Carousel from 'react-bootstrap/Carousel';
-import Card from 'react-bootstrap/Card';
 
-/** The Home page. */
-const Home = () => (
+/** The landing page. */
+const LandingPage = () => (
   <main>
     {/* Hero section */}
     <Container id="landing-page" fluid className="py-5">
@@ -155,4 +152,4 @@ const Home = () => (
 );
 
 
-export default Home;
+export default LandingPage;
