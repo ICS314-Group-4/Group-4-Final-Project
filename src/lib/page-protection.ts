@@ -2,6 +2,15 @@ import { redirect } from 'next/navigation';
 import { Role } from '@prisma/client';
 
 /**
+ * Redirects users to landing page automatically if user is not logged in.
+ */
+export const landingProtectionPage = (session: { user: { email: string; id: string; name: string } } | null) => {
+  if (!session) {
+    redirect('/landing');
+  }
+};
+
+/**
  * Redirects to the login page if the user is not logged in.
  */
 export const loggedInProtectedPage = (session: { user: { email: string; id: string; name: string } } | null) => {
