@@ -1,10 +1,5 @@
 'use client';
 
-import { Col, Container, Image, Row } from 'react-bootstrap';
-import { BookmarkPlus, Search, Pen, Share } from 'react-bootstrap-icons';
-import Button from 'react-bootstrap/Button';
-import Carousel from 'react-bootstrap/Carousel';
-import Card from 'react-bootstrap/Card';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
 const categories = [
@@ -20,147 +15,45 @@ const categories = [
 
 const Home = () => (
   <main>
-    {/* Hero section */}
-    <Container id="landing-page" fluid className="py-5">
+    {/* Hero */}
+    <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-5">
       <Container>
-      <Row className="align-middle text-center">
-        <Col md="6">
-          <h1>Save time and help more, get started with UH ITS Email Helper</h1>
-          <p className='text-center'>Create and share your own templates or browse and save your favorites. Save time with templates created by fellow ITS student workers.</p>
-          <h2>Get started now!</h2>
-          <div className='d-flex justify-content-center gap-3 flex-wrap'>
-            <Button size='lg' className='button'>
-              Explore templates
-            </Button>
-            <Button size='lg' className='button'>
-              Create a template
-            </Button>
-          </div>
-        </Col>
-        <Col md="6">
-        <Image
-              src="/ITS-Building.jpg"
-              alt='ITS Building'
-              fluid
-            />
-        </Col>
+        <h1 className="fw-bold mb-2">UH ITS Email Helper</h1>
+        <p className="mb-4" style={{ maxWidth: '600px', opacity: 0.9 }}>
+          A shared library of email templates built by UH ITS student employees.
+          Find a response, copy it, and get back to the next ticket faster.
+        </p>
+        <div className="d-flex gap-2 flex-wrap">
+          <Button href="/list" variant="light" style={{ color: '#024731', fontWeight: 600 }}>
+            Browse Templates
+          </Button>
+          <Button href="/add" variant="outline-light">
+            Add a Template
+          </Button>
+        </div>
+      </Container>
+    </div>
+
+    {/* Categories */}
+    <Container className="py-5">
+      <h2 className="mb-1">Browse by Category</h2>
+      <p className="text-muted mb-4">{categories.length} categories</p>
+      <Row xs={1} sm={2} md={4} className="g-3">
+        {categories.map((cat) => (
+          <Col key={cat.id}>
+            <a href="/list" className="text-decoration-none text-dark h-100">
+              <Card className="h-100" style={{ cursor: 'pointer' }}>
+                <Card.Body>
+                  <Card.Title style={{ fontSize: '1rem' }}>{cat.name}</Card.Title>
+                  <Card.Text className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    {cat.count} templates
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </a>
+          </Col>
+        ))}
       </Row>
-      </Container>
-    </Container>
-
-    {/* Features buttons for quick access */}
-    <Container id='Features' fluid className='py-5'>
-      <Container>
-        <Row className="align-middle text-center">
-          <Col md='3'>
-            <Card style={{ width: '18rem' }}>
-              <div className='text-center mt-3'>
-              <Pen size={40}/>
-                <Card.Body>
-                  <Card.Title>Create a Template</Card.Title>
-                  <Card.Text>
-                  Create your own email templates from scratch
-                  </Card.Text>
-                <Button variant="primary" className='button'>Get creating</Button>
-                </Card.Body>
-              </div>
-            </Card>
-          </Col>
-          <Col md='3'>
-            <Card style={{ width: '18rem' }}>
-              <div className='text-center mt-3'>
-              <Share size={40}/>
-                <Card.Body>
-                  <Card.Title>Share a Template</Card.Title>
-                  <Card.Text>
-                  Share a template for your fellow ITS students to utilize
-                  </Card.Text>
-                <Button variant="primary" className='button'>Go share</Button>
-                </Card.Body>
-              </div>
-            </Card>
-          </Col>
-          <Col md='3'>
-            <Card style={{ width: '18rem' }}>
-              <div className='text-center mt-3'>
-              <Search size={40}/>
-                <Card.Body>
-                  <Card.Title>Browse Templates</Card.Title>
-                  <Card.Text>
-                  View and explore templates shared by other students
-                  </Card.Text>
-                <Button variant="primary" className='button'>Explore now</Button>
-                </Card.Body>
-              </div>
-            </Card>
-          </Col>
-          <Col md='3'>
-            <Card style={{ width: '18rem' }}>
-              <div className='text-center mt-3'>
-              <BookmarkPlus size={40}/>
-                <Card.Body>
-                  <Card.Title>Save a Template</Card.Title>
-                  <Card.Text>
-                  Save your favorite templates and keep them all in one place
-                  </Card.Text>
-                <Button variant="primary" className='button'>Save now</Button>
-                </Card.Body>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </Container>
-
-    {/* Top templates thing */}
-    {/* I was thinking in this carousel, we would have popular templates rotating for quick and easy access. Can remove if impossible */}
- <Container id="Templates carousel" fluid className='py-5'>
-      <Container>
-        <Carousel data-bs-theme="dark">
-          <Carousel.Item>
-            <Image
-              src="/Placeholder-image.jpg"
-              alt='Placeholder slide 1'
-              fluid
-            />
-            <Carousel.Caption>
-              <h3>Placeholder slide 1</h3>
-              <p>This will contain a template</p>
-              <Button size='lg' className='button'>
-              Use this template
-              </Button>
-            </Carousel.Caption>
-          </Carousel.Item>
-          <Carousel.Item>
-            <Image
-              src="/Placeholder-image.jpg"
-              alt='Placeholder slide 2'
-              fluid
-            />
-            <Carousel.Caption>
-              <h3>Placeholder slide 2</h3>
-              <p>This will contain a template</p>
-              <Button size='lg' className='button'>
-              Use this template
-              </Button>
-            </Carousel.Caption>
-          </Carousel.Item>
-          <Carousel.Item>
-            <Image
-              src="/Placeholder-image.jpg"
-              alt='Placeholder slide 3'
-              fluid
-            />
-            <Carousel.Caption>
-              <h3>Placeholder slide 3</h3>
-              <p>This will also contain a template</p>
-              <Button size='lg' className='button'>
-              Use this template
-              </Button>
-            </Carousel.Caption>
-          </Carousel.Item>
-        </Carousel>
-      </Container>
     </Container>
 
     {/* CTA */}
@@ -179,6 +72,5 @@ const Home = () => (
     </div>
   </main>
 );
-
 
 export default Home;
