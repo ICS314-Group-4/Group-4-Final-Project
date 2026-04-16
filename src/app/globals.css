@@ -1,14 +1,26 @@
 :root {
+  --nat-navbar-bg: #024731;
+  --nav-navbar-bg-color: #024731;
+  --nat-navbar-bg-rgb: 2, 71, 49;
+  --nat-navbar-text-color: white;
+  --nat-navbar-highlight-text: lightblue;
+  --nat-navbar-highlight-bg: 0, 0, 139;
+  --nat-navbar-text-highlight: khaki;
   --uh-green: #024731;
+  --uh-green-dark: #001D02;
 }
-
 html,
 body {
+  --bs-dark: var(--nat-navbar-bg);
   --bs-light-rgb: 236, 236, 236;
+  --bs-dark-rgb: var(--nat-navbar-bg-rgb);
   box-sizing: border-box;
   height: 100%;
   padding: 0;
   margin: 0;
+}
+footer, footer a {
+  color: var(--nat-navbar-text-color);
 }
 .wrapper {
   box-sizing: border-box;
@@ -16,6 +28,18 @@ body {
   display: flex;
   flex-direction: column;
 }
+body .navbar {
+  --bs-navbar-active-color: var(--nat-navbar-highlight-text);
+  --bs-navbar-brand-color: var(--nat-navbar-text-color);
+  --bs-navbar-brand-hover-color: var(--nat-navbar-highlight-text);
+  --bs-navbar-color: var(--nat-navbar-text-color);
+  --bs-navbar-hover-color: var(--nat-navbar-highlight-text);
+}
+.button{
+  background-color: var(--uh-green);
+}
+.button:hover{
+  background-color: var(--uh-green-dark);
 
 #template-item .template-tag {
   background-color: var(--uh-green) !important;
