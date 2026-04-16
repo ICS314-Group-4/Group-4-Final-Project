@@ -18,10 +18,10 @@ const Home = () => (
           <p className='text-center'>Create and share your own templates or browse and save your favorites. Save time with templates created by fellow ITS student workers.</p>
           <h2>Get started now!</h2>
           <div className='d-flex justify-content-center gap-3 flex-wrap'>
-            <Button size='lg' className='button'>
+            <Button size='lg' className='button' href='/list'>
               Explore templates
             </Button>
-            <Button size='lg' className='button'>
+            <Button size='lg' className='button' href='/add'>
               Create a template
             </Button>
           </div>
@@ -50,7 +50,7 @@ const Home = () => (
                   <Card.Text>
                   Create your own email templates from scratch
                   </Card.Text>
-                <Button variant="primary" className='button'>Get creating</Button>
+                <Button variant="primary" className='button' href='/add'>Get creating</Button>
                 </Card.Body>
               </div>
             </Card>
@@ -78,7 +78,7 @@ const Home = () => (
                   <Card.Text>
                   View and explore templates shared by other students
                   </Card.Text>
-                <Button variant="primary" className='button'>Explore now</Button>
+                <Button variant="primary" className='button' href='temp'>Explore now</Button>
                 </Card.Body>
               </div>
             </Card>
@@ -92,7 +92,7 @@ const Home = () => (
                   <Card.Text>
                   Save your favorite templates and keep them all in one place
                   </Card.Text>
-                <Button variant="primary" className='button'>Save now</Button>
+                <Button variant="primary" className='button' href='temp'>Save now</Button>
                 </Card.Body>
               </div>
             </Card>
