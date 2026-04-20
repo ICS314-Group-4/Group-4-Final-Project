@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Category } from '@prisma/client';
 
 const CATEGORY_OPTIONS = [
   "Google Core/Consumer Apps",
@@ -39,8 +40,8 @@ export const EditTemplateSchema = Yup.object({
   id: Yup.number().required(),
   title: Yup.string().required(),
   template: Yup.string().required(),
-  category: Yup.string().oneOf(CATEGORY_OPTIONS).required(),
-  tags: Yup.array().of(Yup.string()).required(),
+  category: Yup.mixed<Category>().oneOf(Object.values(Category)).required(),
+  tags: Yup.array().of(Yup.string().defined()).required(),
   author: Yup.string().required(),
   used: Yup.number().positive().required(),
 });
