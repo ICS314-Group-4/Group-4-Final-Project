@@ -30,7 +30,8 @@ export const EditStuffSchema = Yup.object({
 export const AddTemplateSchema = Yup.object({
   problem: Yup.string().required(),
   title: Yup.string().required(),
-  category: Yup.string().oneOf(CATEGORY_OPTIONS).required(),
+  template: Yup.string().required(),
+  category: Yup.string().oneOf(CATEGORY_OPTIONS).required() as Yup.Schema<Category>,
   tags: Yup.array().of(Yup.string()).required(),
   author: Yup.string().required(),
   used: Yup.number().positive().required(),
@@ -40,7 +41,7 @@ export const EditTemplateSchema = Yup.object({
   id: Yup.number().required(),
   title: Yup.string().required(),
   template: Yup.string().required(),
-  category: Yup.mixed<Category>().oneOf(Object.values(Category)).required(),
+  category: Yup.string().oneOf(CATEGORY_OPTIONS).required() as Yup.Schema<Category>,
   tags: Yup.array().of(Yup.string().defined()).required(),
   author: Yup.string().required(),
   used: Yup.number().positive().required(),

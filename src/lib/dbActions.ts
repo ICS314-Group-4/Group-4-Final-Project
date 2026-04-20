@@ -6,22 +6,24 @@ import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
 
+const categoryMap: Record<string, Category> = {
+  'Google Core/Consumer Apps': Category.GOOGLE_APPS,
+  'STAR/Banner': Category.STAR_BANNER,
+  'UH Account': Category.UH_ACCOUNT,
+  'Duo Mobile/MFA': Category.DUO_MOBILE_MFA,
+  'Lamaku/Laulima LMS': Category.LAMAKU_LAULIMA,
+  'Network/Printing': Category.NETWORK_PRINTING,
+  'General Support': Category.GENERAL_SUPPORT,
+  'Site License': Category.SITE_LICENSE,
+};
+
 /**
  * Creates a new contact in the database.
  * @param template, an object with the following properties: title, template, category, author, tags, used.
  */
 export async function addTemplate(template: { title: string; template: string; category: string; author: string; tags: string[]; used: number }) {
-  const categoryMap: Record<string, Category> = {
-  'google core': Category.GOOGLE_APPS,
-  'star': Category.STAR_BANNER,
-  'duo mobile': Category.DUO_MOBILE_MFA,
-  'lamaku': Category.LAMAKU_LAULIMA,
-  'network': Category.NETWORK_PRINTING,
-  'general support': Category.GENERAL_SUPPORT,
-  'site licensed apps': Category.SITE_LICENSE,
-};
-
-const category: Category = categoryMap[template.category] || Category.UH_ACCOUNT;
+  
+  const category: Category = categoryMap[template.category] || Category.GENERAL_SUPPORT;
 
   await prisma.template.create({
     data: {
@@ -37,18 +39,18 @@ const category: Category = categoryMap[template.category] || Category.UH_ACCOUNT
 }
 
 export async function editTemplate(template: Template) {
+  const validatedCategory = categoryMap[template.category] || template.category;
   await prisma.template.update({
     where: { id: template.id },
     data: {
       title: template.title,
       template: template.template,
-      category: template.category,
+      category: validatedCategory,
       tags: template.tags,
       author: template.author,
       used: template.used,
     },
   });
-  redirect('/list');
 }
 
 /**

@@ -19,6 +19,24 @@ const categories = [
   'Site License',
 ];
 
+const onSubmit = async (data: Template) => {
+  // console.log(`onSubmit data: ${JSON.stringify(data, null, 2)}`);
+  try { 
+  await editTemplate(data);
+  await swal({
+      title: "Success!",
+      text: "Your template has been updated",
+      icon: "success",
+      timer: 2000,
+      buttons: [false],
+    });
+    window.location.href = '/list'; 
+  } catch (error) {
+    console.error(error);
+    swal("Error", "Something went wrong.", "error");
+  }
+};
+
 const EditTemplateForm = ({ template }: { template: Template }) => {
   const {
     register,
@@ -29,17 +47,6 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
     resolver: yupResolver(EditTemplateSchema),
     defaultValues: template,
   });
-
-  const onSubmit = async (data: Template) => {
-    try {
-      await editTemplate(data);
-      swal('Success', 'Your template has been updated', 'success', {
-        timer: 2000,
-      });
-    } catch (error) {
-      swal('Error', 'Something went wrong while updating.', 'error');
-    }
-  };
 
   return (
     <Container className="py-3">
