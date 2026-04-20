@@ -24,7 +24,7 @@ async function main() {
     // console.log(`  Created user: ${user.email} with role: ${user.role}`);
   });
   for (const template of config.defaultTemplate) {
-    const category = (template.category as Category) || Category.account;
+    const category = (template.category as Category) || Category.UH_ACCOUNT;
     console.log(`  Adding ${template.author}'s Template: ${template.title}`);
     await prisma.template.upsert({
       where: { title: template.title  },
