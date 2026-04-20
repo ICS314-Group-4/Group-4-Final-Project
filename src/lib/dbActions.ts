@@ -23,13 +23,13 @@ const categoryMap: Record<string, Category> = {
  */
 export async function addTemplate(template: { title: string; template: string; category: string; author: string; tags: string[]; used: number }) {
   
-  const category: Category = categoryMap[template.category] || Category.GENERAL_SUPPORT;
+  const validatedCategory = categoryMap[template.category] || template.category;
 
   await prisma.template.create({
     data: {
       title: template.title,
       template: template.template,
-      category,
+      category: validatedCategory,
       tags: template.tags,
       author: template.author,
       used: template.used,

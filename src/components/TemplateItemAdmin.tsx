@@ -1,5 +1,4 @@
 import { Template } from '@prisma/client';
-import Link from 'next/link';
 import { categoryLabels } from '@/lib/categoryLabels';
 import { deleteTemplate } from '@/lib/dbActions';
 
