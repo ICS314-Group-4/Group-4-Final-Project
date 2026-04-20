@@ -1,90 +1,27 @@
 'use server';
 
-import { Condition, Category } from '@prisma/client';
-import { Stuff, Template } from '@prisma/client';
+import { Category } from '@prisma/client';
+import { Template } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
-
-/**
- * Adds a new stuff to the database.
- * @param stuff, an object with the following properties: name, quantity, owner, condition.
- */
-export async function addStuff(stuff: { name: string; quantity: number; owner: string; condition: string }) {
-  // console.log(`addStuff data: ${JSON.stringify(stuff, null, 2)}`);
-  let condition: Condition = 'good';
-  if (stuff.condition === 'poor') {
-    condition = 'poor';
-  } else if (stuff.condition === 'excellent') {
-    condition = 'excellent';
-  } else {
-    condition = 'fair';
-  }
-  await prisma.stuff.create({
-    data: {
-      name: stuff.name,
-      quantity: stuff.quantity,
-      owner: stuff.owner,
-      condition,
-    },
-  });
-  // After adding, redirect to the list page
-  redirect('/list');
-}
-
-/**
- * Edits an existing stuff in the database.
- * @param stuff, an object with the following properties: id, name, quantity, owner, condition.
- */
-export async function editStuff(stuff: Stuff) {
-  // console.log(`editStuff data: ${JSON.stringify(stuff, null, 2)}`);
-  await prisma.stuff.update({
-    where: { id: stuff.id },
-    data: {
-      name: stuff.name,
-      quantity: stuff.quantity,
-      owner: stuff.owner,
-      condition: stuff.condition,
-    },
-  });
-  // After updating, redirect to the list page
-  redirect('/list');
-}
-
-/**
- * Deletes an existing stuff from the database.
- * @param id, the id of the stuff to delete.
- */
-export async function deleteStuff(id: number) {
-  // console.log(`deleteStuff id: ${id}`);
-  await prisma.stuff.delete({
-    where: { id },
-  });
-  // After deleting, redirect to the list page
-  redirect('/list');
-}
 
 /**
  * Creates a new contact in the database.
  * @param template, an object with the following properties: title, template, category, author, tags, used.
  */
 export async function addTemplate(template: { title: string; template: string; category: string; author: string; tags: string[]; used: number }) {
-  let category: Category = 'account';
-  if (template.category === 'google core') {
-    category = 'google_core';
-  } else if (template.category === 'star') {
-    category = 'star';
-  } else if (template.category === 'duo mobile') {
-    category = 'duo_mobile';
-  } else if (template.category === 'lamaku') {
-    category = 'lamaku';
-  } else if (template.category === 'network') {
-    category = 'network';
-  } else if (template.category === 'general support') {
-    category = 'general_support';
-  } else if (template.category === 'site licensed apps') {
-    category = 'site_licensed_apps';
-  }
+  const categoryMap: Record<string, Category> = {
+  'google core': Category.GOOGLE_APPS,
+  'star': Category.STAR_BANNER,
+  'duo mobile': Category.DUO_MOBILE_MFA,
+  'lamaku': Category.LAMAKU_LAULIMA,
+  'network': Category.NETWORK_PRINTING,
+  'general support': Category.GENERAL_SUPPORT,
+  'site licensed apps': Category.SITE_LICENSE,
+};
+
+const category: Category = categoryMap[template.category] || Category.UH_ACCOUNT;
 
   await prisma.template.create({
     data: {

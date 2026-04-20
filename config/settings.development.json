@@ -3,14 +3,8 @@
     { "email": "admin@foo.com", "password": "changeme", "role": "ADMIN" },
     { "email": "john@foo.com", "password": "changeme" }
   ],
-  "defaultData": [
-    { "name": "Basket", "quantity": 3, "owner": "john@foo.com", "condition": "excellent" },
-    { "name": "Bicycle", "quantity": 2, "owner": "john@foo.com", "condition": "poor" },
-    { "name": "Banana", "quantity": 2, "owner": "admin@foo.com", "condition": "good" },
-    { "name": "Boogie Board", "quantity": 2, "owner": "admin@foo.com", "condition": "excellent" }
-  ],
   "defaultTemplate": [
-    { "title": "Test Problem", "template": "Test Template", "author": "john@foo.com", "category": "account", "tags": ["tag1", "tag2"], "used": 3 },
-    { "title": "Thank you", "template": "Aloha [Student Name], \n Thank you for contacting the ITS ... \n\nThank You,\n[Personal Name]", "author": "admin@foo.com", "category": "general_support", "tags": ["help", "welcome"], "used": 52 }
+    { "title": "Test Problem", "template": "Test Template", "author": "john@foo.com", "category": "UH_ACCOUNT", "tags": ["tag1", "tag2"], "used": 3 },
+    { "title": "Thank you", "template": "Aloha [Student Name], \n Thank you for contacting the ITS ... \n\nThank You,\n[Personal Name]", "author": "admin@foo.com", "category": "UH_ACCOUNT", "tags": ["help", "welcome"], "used": 52 }
   ]
 }
