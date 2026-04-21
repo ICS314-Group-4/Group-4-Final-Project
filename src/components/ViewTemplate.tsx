@@ -19,21 +19,25 @@ export default function ViewTemplate({ item }: { item: Template }) {
     await navigator.clipboard.writeText(item.template || '');
     setCopied(true);
 
-    // Call your API to handle the logic above
-    const response = await fetch('/api/templates/use', {
+    const response = await fetch('/api/templates', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ templateId: item.id }),
     });
 
-    const result = await response.json();
-    
-    if (result.success) {
-      // Logic to update local UI count if needed
+    if (!response.ok) {
+      // THIS WILL SHOW YOU THE HTML ERROR IN THE CONSOLE
+      const errorText = await response.text();
+      console.error("Error HTML:", errorText); 
+      return;
     }
+
+    const data = await response.json();
+    console.log("Success:", data);
 
     setTimeout(() => setCopied(false), 2000);
   } catch (err) {
-    console.error('Failed to copy or track:', err);
+    console.error('Fetch error:', err);
   }
 };
 

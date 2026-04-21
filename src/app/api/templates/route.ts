@@ -1,12 +1,11 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client"; // Import the Prisma namespace
 
-// This is your custom POST handler for the counter
 export async function POST(req: Request) {
   const session = await auth();
 
-  // 1. Check if user is authenticated
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -15,8 +14,6 @@ export async function POST(req: Request) {
     const { templateId } = await req.json();
 
     const result = await prisma.$transaction(async (tx) => {
-      // 2. Try to create the usage record
-      // This will fail automatically if the userId/templateId combo exists
       await tx.templateUsage.create({
         data: {
           userId: Number(session.user.id),
@@ -24,7 +21,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // 3. Increment the 'used' field in the Template model
       return await tx.template.update({
         where: { id: Number(templateId) },
         data: { used: { increment: 1 } },
@@ -32,16 +28,22 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, used: result.used });
-  } catch (error: any) {
-    // Prisma error P2002 = Unique constraint failed (User already used this)
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { success: false, message: "You have already used this template." },
-        { status: 400 }
-      );
+
+  } catch (error: unknown) { // Change 'any' to 'unknown'
+    // Check if it's a specific Prisma Error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return NextResponse.json(
+          { success: false, message: "Already used" },
+          { status: 400 }
+        );
+      }
     }
-    
+
     console.error("Database error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" }, 
+      { status: 500 }
+    );
   }
 }
