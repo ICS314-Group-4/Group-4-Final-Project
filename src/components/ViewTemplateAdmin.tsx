@@ -53,30 +53,6 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
             <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Copies</div>
           </div>
           <div>
-            <div>
-          <a 
-            href={`/edit/${item.id}`} 
-            className="btn btn-sm btn-outline-primary"
-            style={{ fontSize: '0.75rem' }}
-            onClick={(e) => e.stopPropagation()}
-            > 
-            Edit
-          </a>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            style={{ fontSize: '0.75rem' }}
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (confirm(`Delete "${item.title}"?`)) {
-                await deleteTemplate(item.id);
-              }
-            }}
-            >
-            Delete
-          </button>
-          </div> 
-          </div>
-          <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{MOCK_COMMENTS.length}</div>
             <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Comments</div>
           </div>
@@ -85,6 +61,29 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
         {/* Email body */}
         <div className="mb-2 d-flex justify-content-between align-items-center">
           <span className="fw-semibold">Email Template</span>
+          <div className="d-flex align-items-center gap-2">
+    {/* Edit and Delete are now grouped to the left of Copy */}
+    <a 
+      href={`/edit/${item.id}`} 
+      className="btn btn-sm btn-outline-primary"
+      style={{ fontSize: '0.75rem', padding: '4px 12px' }}
+      onClick={(e) => e.stopPropagation()}
+    > 
+      Edit
+    </a>
+    <button
+      className="btn btn-sm btn-outline-danger"
+      style={{ fontSize: '0.75rem', padding: '4px 12px' }}
+      onClick={async (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete "${item.title}"?`)) {
+          await deleteTemplate(item.id);
+          window.location.href = '/list';
+        }
+      }}
+    >
+      Delete
+    </button>
           <Button
             size="sm"
             onClick={handleCopy}
@@ -96,6 +95,7 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
           >
             {copied ? 'Copied!' : 'Copy'}
           </Button>
+        </div>
         </div>
         <div
           className="p-4 mb-4"

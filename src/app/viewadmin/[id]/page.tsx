@@ -3,9 +3,9 @@ import { Template } from '@prisma/client';
 import { adminProtectedPage } from '@/lib/page-protection';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import ViewTemplateAdmin from '@/components/ViewTemplate';
+import ViewTemplateAdmin from '@/components/ViewTemplateAdmin';
 
-export default async function ViewTemplatePage({ params }: { params: { id: string | string[] } }) {
+export default async function ViewTemplateAdminPage({ params }: { params: { id: string | string[] } }) {
   const { id } = await params;
 
   // Protect the page
