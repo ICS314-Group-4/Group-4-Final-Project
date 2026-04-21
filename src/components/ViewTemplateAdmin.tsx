@@ -49,10 +49,6 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
             <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Times Used</div>
           </div>
           <div>
-            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>—</div>
-            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Copies</div>
-          </div>
-          <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{MOCK_COMMENTS.length}</div>
             <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Comments</div>
           </div>

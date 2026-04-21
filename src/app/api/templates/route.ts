@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client"; // Import the Prisma namespace
 
-export async function POST(req: Request) {
+export async function POST(req: Request) {  
   const session = await auth();
 
   if (!session?.user?.id) {

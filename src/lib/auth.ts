@@ -10,6 +10,11 @@ declare module 'next-auth' {
       role?: string;
     } & DefaultSession['user'];
   }
+
+  interface User {
+    id?: string;
+    role?: string;
+  }
 }
 
 // Export v5 handlers and helpers
@@ -49,6 +54,11 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
   },
   callbacks: {
     session({ session, token }) {
+      if (session.user) {
+        // We pull the id from 'token.id' (or 'token.sub' as a backup)
+        session.user.id = (token.id ?? token.sub) as string; 
+        session.user.role = token.role as string;
+      }
       return {
         ...session,
         user: {
@@ -61,6 +71,11 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       // user is type: { id?: string; email?: string; name?: string; role?: string }
       if (user && typeof (user as { role?: string }).role === 'string') {
         token.role = (user as { role?: string }).role;
+      }
+
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
