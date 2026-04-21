@@ -3,21 +3,18 @@
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { Category, Template } from '@prisma/client';
-import TemplateItem from './TemplateItem';
+import TemplateItemAdmin from './TemplateItemAdmin';
 import { categoryLabels } from '@/lib/categoryLabels';
+import { deleteTemplate } from '@/lib/dbActions'; 
 
 type Props = {
   templates: Template[];
   categories: string[];
-  authors: { email: string; name: string | null }[];
 };
 
-const TemplateFilter = ({ templates, categories, authors }: Props) => {
+const TemplateFilterAdmin = ({ templates, categories }: Props) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
-  const authorNames = Object.fromEntries(
-    authors.map(({ email, name }) => [email, name ?? email]),
-  );
 
   const filtered = templates.filter(t => {
     const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
@@ -80,15 +77,16 @@ const TemplateFilter = ({ templates, categories, authors }: Props) => {
                 borderBottom: '2px solid #dee2e6',
               }}
             >
-              <th className="py-3 fw-semibold" style={{ width: '42%' }}>Template</th>
-              <th className="py-3 fw-semibold" style={{ width: '22%' }}>Category</th>
-              <th className="py-3 fw-semibold" style={{ width: '22%' }}>Author</th>
-              <th className="py-3 fw-semibold" style={{ width: '14%' }}>Used</th>
+              <th className="py-3 fw-semibold" style={{ width: '40%' }}>Template</th>
+              <th className="py-3 fw-semibold" style={{ width: '20%' }}>Category</th>
+              <th className="py-3 fw-semibold" style={{ width: '20%' }}>Author</th>
+              <th className="py-3 fw-semibold" style={{ width: '12%' }}>Used</th>
+              <th className="py-3 fw-semibold text-end" style={{ width: '10%' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(t => (
-              <TemplateItem key={t.id} template={t} authorName={authorNames[t.author]} />
+              <TemplateItemAdmin key={t.id} template={t} />
             ))}
           </tbody>
         </Table>
@@ -106,4 +104,4 @@ const TemplateFilter = ({ templates, categories, authors }: Props) => {
   );
 };
 
-export default TemplateFilter;
+export default TemplateFilterAdmin;

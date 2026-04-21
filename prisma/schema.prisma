@@ -7,28 +7,34 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+    id       Int    @id @default(autoincrement())
   email    String @unique
   password String
   role     Role   @default(USER)
-}
-
-model Stuff {
-  id        Int       @id @default(autoincrement())
-  name      String
-  quantity  Int
-  condition Condition @default(good)
-  owner     String
+  name     String @default("Please add a name on your profile page")
+  sign     String @default("")
+  TemplateUsage TemplateUsage[]
 }
 
 model Template {
-  id        Int       @id @default(autoincrement())
-  title     String    @unique   
-  template  String
-  category  Category 
-  tags      String[]
-  author    String
-  used      Int
+  id            Int             @id @default(autoincrement())
+  template      String
+  category      Category
+  author        String
+  used          Int             @default(0)
+  tags          String[]
+  title         String          @unique
+  TemplateUsage TemplateUsage[]
+}
+
+model TemplateUsage {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  templateId Int
+  Template   Template @relation(fields: [templateId], references: [id])
+  User       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, templateId])
 }
 
 enum Role {
@@ -36,20 +42,13 @@ enum Role {
   ADMIN
 }
 
-enum Condition {
-  excellent
-  good
-  fair
-  poor
-}
-
 enum Category {
-  account
-  google_core
-  star
-  duo_mobile
-  lamaku
-  network
-  general_support
-  site_licensed_apps
+  GOOGLE_APPS      @map("Google Core/Consumer Apps")
+  STAR_BANNER      @map("STAR/Banner")
+  UH_ACCOUNT       @map("UH Account")
+  DUO_MOBILE_MFA   @map("Duo Mobile/MFA")
+  LAMAKU_LAULIMA   @map("Lamaku/Laulima LMS")
+  NETWORK_PRINTING @map("Network/Printing")
+  GENERAL_SUPPORT  @map("General Support")
+  SITE_LICENSE     @map("Site License")
 }
