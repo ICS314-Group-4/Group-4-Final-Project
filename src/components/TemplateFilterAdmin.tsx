@@ -5,7 +5,6 @@ import { Table } from 'react-bootstrap';
 import { Category, Template } from '@prisma/client';
 import TemplateItemAdmin from './TemplateItemAdmin';
 import { categoryLabels } from '@/lib/categoryLabels';
-import { deleteTemplate } from '@/lib/dbActions'; 
 
 type Props = {
   templates: Template[];

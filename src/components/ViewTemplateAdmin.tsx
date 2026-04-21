@@ -4,41 +4,26 @@ import { useState } from 'react';
 import { Container, Button, Form } from 'react-bootstrap';
 import { Template } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
+import { deleteTemplate } from '@/lib/dbActions';
 
 const MOCK_COMMENTS = [
   { initials: 'M', name: 'Maile A.', time: '2 days ago', body: 'This one has saved me so many times during peak hours.' },
   { initials: 'T', name: 'Tyler N.', time: '1 day ago', body: 'Heads up — double check the URL in step 3, it may have changed recently.' },
 ];
 
-export default function ViewTemplate({ item }: { item: Template }) {
+export default function ViewTemplateAdmin({ item }: { item: Template }) {
   const [copied, setCopied] = useState(false);
   const [comment, setComment] = useState('');
 
   const handleCopy = async () => {
-  try {
-    await navigator.clipboard.writeText(item.template || '');
-    setCopied(true);
-
-    const response = await fetch('/api/templates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ templateId: item.id }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log("Counter updated successfully.");
-    } else {
-      console.warn("Counter skipped:", data.message);
+    try {
+      await navigator.clipboard.writeText(item.template || '');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
     }
-
-    setTimeout(() => setCopied(false), 2000);
-    
-  } catch (err) {
-    console.error('Network error:', err);
-  }
-};
+  };
 
   return (
     <main>
@@ -72,6 +57,29 @@ export default function ViewTemplate({ item }: { item: Template }) {
         {/* Email body */}
         <div className="mb-2 d-flex justify-content-between align-items-center">
           <span className="fw-semibold">Email Template</span>
+          <div className="d-flex align-items-center gap-2">
+    {/* Edit and Delete are now grouped to the left of Copy */}
+    <a 
+      href={`/edit/${item.id}`} 
+      className="btn btn-sm btn-outline-primary"
+      style={{ fontSize: '0.75rem', padding: '4px 12px' }}
+      onClick={(e) => e.stopPropagation()}
+    > 
+      Edit
+    </a>
+    <button
+      className="btn btn-sm btn-outline-danger"
+      style={{ fontSize: '0.75rem', padding: '4px 12px' }}
+      onClick={async (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete "${item.title}"?`)) {
+          await deleteTemplate(item.id);
+          window.location.href = '/list';
+        }
+      }}
+    >
+      Delete
+    </button>
           <Button
             size="sm"
             onClick={handleCopy}
@@ -83,6 +91,7 @@ export default function ViewTemplate({ item }: { item: Template }) {
           >
             {copied ? 'Copied!' : 'Copy'}
           </Button>
+        </div>
         </div>
         <div
           className="p-4 mb-4"
