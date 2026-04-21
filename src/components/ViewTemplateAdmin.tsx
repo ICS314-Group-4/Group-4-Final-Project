@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { Container, Button, Form } from 'react-bootstrap';
 import { Template } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
+import { deleteTemplate } from '@/lib/dbActions';
 
 const MOCK_COMMENTS = [
   { initials: 'M', name: 'Maile A.', time: '2 days ago', body: 'This one has saved me so many times during peak hours.' },
   { initials: 'T', name: 'Tyler N.', time: '1 day ago', body: 'Heads up — double check the URL in step 3, it may have changed recently.' },
 ];
 
-export default function ViewTemplate({ item }: { item: Template }) {
+export default function ViewTemplateAdmin({ item }: { item: Template }) {
   const [copied, setCopied] = useState(false);
   const [comment, setComment] = useState('');
 
@@ -50,6 +51,30 @@ export default function ViewTemplate({ item }: { item: Template }) {
           <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>—</div>
             <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Copies</div>
+          </div>
+          <div>
+            <div>
+          <a 
+            href={`/edit/${item.id}`} 
+            className="btn btn-sm btn-outline-primary"
+            style={{ fontSize: '0.75rem' }}
+            onClick={(e) => e.stopPropagation()}
+            > 
+            Edit
+          </a>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            style={{ fontSize: '0.75rem' }}
+            onClick={async (e) => {
+              e.stopPropagation();
+              if (confirm(`Delete "${item.title}"?`)) {
+                await deleteTemplate(item.id);
+              }
+            }}
+            >
+            Delete
+          </button>
+          </div> 
           </div>
           <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{MOCK_COMMENTS.length}</div>

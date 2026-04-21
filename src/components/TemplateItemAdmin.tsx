@@ -7,7 +7,7 @@ const TemplateItemAdmin = ({ template }: { template: Template }) => (
   <tr
       className="align-middle"
       style={{ cursor: 'pointer' }}
-      onClick={() => { window.location.href = `/view/${template.id}`; }}
+      onClick={() => { window.location.href = `/viewadmin/${template.id}`; }}
     >
       <td style={{ maxWidth: '340px' }}>
         <div
