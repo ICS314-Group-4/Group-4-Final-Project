@@ -1,9 +1,18 @@
-import { User } from '@prisma/client';
-import { categoryLabels } from '@/lib/categoryLabels';
 import { deleteUser } from '@/lib/dbActions';
 
+export interface UserSummary {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+type Props = {
+  user: UserSummary;
+};
+
 /* Renders a single row in the List User table. See list/page.tsx. */
-const UserItemAdmin = ({ user }: { user: User }) => (
+const UserItemAdmin = ({ user }: Props) => (
   <tr
       className="align-middle"
       style={{ cursor: 'pointer' }}
@@ -22,25 +31,8 @@ const UserItemAdmin = ({ user }: { user: User }) => (
           {user.name}
         </div>
       </td>
-      <td>
-        <span
-          className="badge fw-normal"
-          style={{
-            backgroundColor: '#e8f0ec',
-            color: '#024731',
-            fontSize: '0.78rem',
-            padding: '5px 10px',
-          }}
-        >
-          {categoryLabels[user.role as keyof typeof categoryLabels]}
-        </span>
-      </td>
       <td className="text-muted" style={{ fontSize: '0.85rem' }}>{user.email}</td>
-      <td>
-        <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-          {user.role ?? 'N/A'}
-        </span>
-      </td>
+      <td className="text-muted" style={{ fontSize: '0.85rem' }}>{user.role}</td>
       <td className="py-3 text-end" onClick={(e) => e.stopPropagation()}>
       <div className="d-flex justify-content-end gap-2">
         <button
