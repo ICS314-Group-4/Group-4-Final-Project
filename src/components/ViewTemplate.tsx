@@ -15,14 +15,27 @@ export default function ViewTemplate({ item }: { item: Template }) {
   const [comment, setComment] = useState('');
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(item.template || '');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+  try {
+    await navigator.clipboard.writeText(item.template || '');
+    setCopied(true);
+
+    // Call your API to handle the logic above
+    const response = await fetch('/api/templates/use', {
+      method: 'POST',
+      body: JSON.stringify({ templateId: item.id }),
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      // Logic to update local UI count if needed
     }
-  };
+
+    setTimeout(() => setCopied(false), 2000);
+  } catch (err) {
+    console.error('Failed to copy or track:', err);
+  }
+};
 
   return (
     <main>
