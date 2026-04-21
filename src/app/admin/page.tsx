@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import TemplateFilterAdmin from '@/components/TemplateFilterAdmin';
 import { adminProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
+import { deleteUser } from '@/lib/dbActions';
 
 const AdminPage = async () => {
   const session = await auth();
@@ -56,15 +57,32 @@ const AdminPage = async () => {
             <Table striped bordered hover>
               <thead>
                 <tr>
+                  <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
+                    <td>{user.name}</td>
                     <td>{user.email}</td>
                     <td>{user.role}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        style={{ fontSize: '0.75rem' }}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete "${user.name}"?`)) {
+                            await deleteUser(user.id);
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -96,3 +96,16 @@ export async function changePassword(credentials: { email: string; password: str
     },
   });
 }
+
+/**
+ * Deletes an existing user from the database.
+ * @param id, the id of the user to delete.
+ */
+export async function deleteUser(id: number) {
+  // console.log(`deleteUser id: ${id}`);
+  await prisma.user.delete({
+    where: { id },
+  });
+  // After deleting, redirect to the list page
+  redirect('/list');
+}
