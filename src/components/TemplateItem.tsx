@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { categoryLabels } from '@/lib/categoryLabels';
 
 /* Renders a single row in the Browse Templates table. See list/page.tsx. */
-const TemplateItem = ({ template }: { template: Template }) => (
+const TemplateItem = ({ template, authorName }: { template: Template; authorName?: string }) => (
   <tr
     className="align-middle"
     style={{ cursor: 'pointer' }}
@@ -48,7 +48,7 @@ const TemplateItem = ({ template }: { template: Template }) => (
         {categoryLabels[template.category]}
       </span>
     </td>
-    <td className="text-muted" style={{ fontSize: '0.85rem' }}>{template.author}</td>
+    <td className="text-muted" style={{ fontSize: '0.85rem' }}>{authorName ?? template.author}</td>
     <td>
       <span className="text-muted" style={{ fontSize: '0.85rem' }}>
         {template.used ?? 0}×

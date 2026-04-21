@@ -1,6 +1,5 @@
-import { Col, Container, Row, Table } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import { prisma } from '@/lib/prisma';
-import TemplateItem from '@/components/TemplateItem';
 import TemplateFilter from '@/components/TemplateFilter';
 import { loggedInProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
@@ -17,6 +16,16 @@ const ListPage = async () => {
   const templates = await prisma.template.findMany({
     orderBy: { used: 'desc' },
   });
+
+  const users = await prisma.user.findMany({ 
+    select: { email: true, name: true },
+  });
+  // There's probably a better solution for this, but in order to have the author names update in real time, 
+  // I'm passing the emails and names so the templatefilter and templateitem can display names instead of emails.
+  // this also means we don't need to change how templates are stored. they still store the author's email.
+
+
+  // check templateitem and templatefilter
 
   const categories = [...new Set(templates.map(t => t.category))].filter(Boolean);
 
@@ -47,7 +56,7 @@ const ListPage = async () => {
         <Row>
           <Col>
             {/* Filter bar — client component */}
-            <TemplateFilter templates={templates} categories={categories} />
+            <TemplateFilter templates={templates} categories={categories} authors={users} />
           </Col>
         </Row>
       </Container>

@@ -9,11 +9,15 @@ import { categoryLabels } from '@/lib/categoryLabels';
 type Props = {
   templates: Template[];
   categories: string[];
+  authors: { email: string; name: string | null }[];
 };
 
-const TemplateFilter = ({ templates, categories }: Props) => {
+const TemplateFilter = ({ templates, categories, authors }: Props) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
+  const authorNames = Object.fromEntries(
+    authors.map(({ email, name }) => [email, name ?? email]),
+  );
 
   const filtered = templates.filter(t => {
     const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
@@ -84,7 +88,7 @@ const TemplateFilter = ({ templates, categories }: Props) => {
           </thead>
           <tbody>
             {filtered.map(t => (
-              <TemplateItem key={t.id} template={t} />
+              <TemplateItem key={t.id} template={t} authorName={authorNames[t.author]} />
             ))}
           </tbody>
         </Table>

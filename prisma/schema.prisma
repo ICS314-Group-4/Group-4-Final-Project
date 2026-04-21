@@ -11,16 +11,18 @@ model User {
   email    String @unique
   password String
   role     Role   @default(USER)
+  name     String @default("Please add a name on your profile page")
+  sign     String @default("")
 }
 
 model Template {
-  id        Int       @id @default(autoincrement())
-  title     String    @unique   
-  template  String
-  category  Category 
-  tags      String[]
-  author    String
-  used      Int
+  id       Int      @id @default(autoincrement())
+  template String
+  category Category
+  author   String
+  used     Int
+  tags     String[]
+  title    String   @unique
 }
 
 enum Role {
