@@ -2,8 +2,16 @@
 
 import { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import swal from 'sweetalert';
+import { addTemplate } from '@/lib/dbActions';
+import { AddTemplateSchema } from '@/lib/validationSchemas';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-const categories = [
+const categoryOptions = [
   'Google Core/Consumer Apps',
   'STAR/Banner',
   'UH Account',
@@ -15,22 +23,54 @@ const categories = [
 ];
 
 const AddTemplateForm: React.FC = () => {
+  const { data: session, status } = useSession();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(AddTemplateSchema),
+    defaultValues: { tags: [] },
+  });
+
+  if (status === 'loading') return <LoadingSpinner />;
+  if (status === 'unauthenticated') redirect('/auth/signin');
+
+  const currentUser = session?.user?.email || '';
 
   const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       const val = tagInput.trim().toLowerCase();
       if (val && !tags.includes(val)) {
-        setTags([...tags, val]);
+        const updated = [...tags, val];
+        setTags(updated);
+        setValue('tags', updated);
       }
       setTagInput('');
     }
   };
 
   const removeTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
+    const updated = tags.filter(t => t !== tag);
+    setTags(updated);
+    setValue('tags', updated);
+  };
+
+  const onSubmit = async (data: {
+    title: string;
+    template: string;
+    category: string;
+    tags: (string | undefined)[];
+  }) => {
+    await addTemplate({
+      title: data.title,
+      template: data.template,
+      category: data.category,
+      author: currentUser,
+      tags: (data.tags ?? []).filter((t): t is string => !!t),
+      used: 0,
+    });
+    await swal('Template Published!', 'Your template is now visible to the whole team.', 'success', { timer: 2000 });
   };
 
   return (
@@ -47,25 +87,30 @@ const AddTemplateForm: React.FC = () => {
 
       {/* Form */}
       <Container className="py-5" style={{ maxWidth: '760px' }}>
-        <Form>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+
           {/* Title */}
           <Form.Group className="mb-4">
             <Form.Label className="fw-semibold">Problem Description / Title</Form.Label>
             <Form.Control
               type="text"
               placeholder="e.g. Resetting your UH Username password"
+              {...register('title')}
+              isInvalid={!!errors.title}
             />
+            <Form.Control.Feedback type="invalid">{errors.title?.message}</Form.Control.Feedback>
           </Form.Group>
 
           {/* Category */}
           <Form.Group className="mb-4">
             <Form.Label className="fw-semibold">Category</Form.Label>
-            <Form.Select>
+            <Form.Select {...register('category')} isInvalid={!!errors.category}>
               <option value="">Select a category...</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {categoryOptions.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </Form.Select>
+            <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
           </Form.Group>
 
           {/* Email Body */}
@@ -76,7 +121,10 @@ const AddTemplateForm: React.FC = () => {
               rows={10}
               placeholder={`Aloha [Student Name],\n\nMahalo for reaching out to the UH ITS Help Desk...\n\nMahalo,\n[Your Name]\nUH ITS Help Desk`}
               style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
+              {...register('template')}
+              isInvalid={!!errors.template}
             />
+            <Form.Control.Feedback type="invalid">{errors.template?.message}</Form.Control.Feedback>
             <Form.Text className="text-muted">
               Use placeholders like [Student Name] so others can quickly customize.
             </Form.Text>
@@ -130,7 +178,11 @@ const AddTemplateForm: React.FC = () => {
               <Button type="submit" style={{ backgroundColor: '#024731', border: 'none' }}>
                 Publish Template
               </Button>
-              <Button type="reset" variant="outline-secondary">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => { reset(); setTags([]); setTagInput(''); }}
+              >
                 Reset
               </Button>
             </Col>

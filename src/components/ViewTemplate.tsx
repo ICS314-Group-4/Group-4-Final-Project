@@ -46,7 +46,7 @@ export default function ViewTemplate({ item }: { item: Template }) {
       <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
         <Container>
           <div className="text-uppercase mb-1" style={{ fontSize: '0.75rem', opacity: 0.7, letterSpacing: '0.1em' }}>
-            {categoryLabels[item.category]}
+            {categoryLabels[item.category]} · #{item.id}
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
           <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>
