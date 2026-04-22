@@ -23,6 +23,7 @@ const TemplateFilter = ({ templates, categories, authors }: Props) => {
     const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
     const q = search.toLowerCase();
     const matchesSearch = !q
+      || t.id.toString() === q.replace('#', '')
       || t.title?.toLowerCase().includes(q)
       || t.category?.toLowerCase().includes(q)
       || t.tags?.some(tag => tag.toLowerCase().includes(q));
