@@ -10,14 +10,20 @@ type Props = {
   templates: Template[];
   categories: string[];
   authors: { email: string; name: string | null }[];
+  commentCounts: Record<number, number>;
 };
 
-const TemplateFilter = ({ templates, categories, authors }: Props) => {
+const TemplateFilter = ({ templates, categories, authors, commentCounts }: Props) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
   const authorNames = Object.fromEntries(
     authors.map(({ email, name }) => [email, name ?? email]),
   );
+
+  const countByCategory = templates.reduce<Record<string, number>>((acc, t) => {
+    acc[t.category] = (acc[t.category] ?? 0) + 1;
+    return acc;
+  }, {});
 
   const filtered = templates.filter(t => {
     const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
@@ -57,7 +63,9 @@ const TemplateFilter = ({ templates, categories, authors }: Props) => {
                 padding: '5px 14px',
               }}
             >
-              {cat === 'All' ? 'All' : categoryLabels[cat as Category] ?? cat}
+              {cat === 'All'
+                ? `All (${templates.length})`
+                : `${categoryLabels[cat as Category] ?? cat} (${countByCategory[cat] ?? 0})`}
             </button>
           ))}
         </div>
@@ -81,26 +89,40 @@ const TemplateFilter = ({ templates, categories, authors }: Props) => {
                 borderBottom: '2px solid #dee2e6',
               }}
             >
-              <th className="py-3 fw-semibold" style={{ width: '42%' }}>Template</th>
-              <th className="py-3 fw-semibold" style={{ width: '22%' }}>Category</th>
-              <th className="py-3 fw-semibold" style={{ width: '22%' }}>Author</th>
-              <th className="py-3 fw-semibold" style={{ width: '14%' }}>Used</th>
+              <th className="py-3 fw-semibold" style={{ width: '38%' }}>Template</th>
+              <th className="py-3 fw-semibold" style={{ width: '21%' }}>Category</th>
+              <th className="py-3 fw-semibold" style={{ width: '21%' }}>Author</th>
+              <th className="py-3 fw-semibold" style={{ width: '10%' }}>Used</th>
+              <th className="py-3 fw-semibold" style={{ width: '10%' }}>Comments</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(t => (
-              <TemplateItem key={t.id} template={t} authorName={authorNames[t.author]} />
+              <TemplateItem key={t.id} template={t} authorName={authorNames[t.author]} commentCount={commentCounts[t.id] ?? 0} />
             ))}
           </tbody>
         </Table>
       ) : (
-        <div className="text-center py-5 text-muted">
-          <p className="mb-1">No templates found.</p>
-          <p style={{ fontSize: '0.9rem' }}>
+        <div
+          className="text-center py-5"
+          style={{ color: '#6c757d' }}
+        >
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem', opacity: 0.3 }}>📭</div>
+          <p className="mb-1 fw-semibold">No templates found</p>
+          <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem' }}>
             {search || activeCategory !== 'All'
               ? 'Try adjusting your search or filter.'
-              : 'Be the first to add one!'}
+              : 'No templates have been added yet.'}
           </p>
+          {!search && activeCategory === 'All' && (
+            <a
+              href="/add"
+              className="btn btn-sm fw-semibold"
+              style={{ backgroundColor: '#024731', color: '#fff', border: 'none' }}
+            >
+              + Add the first one
+            </a>
+          )}
         </div>
       )}
     </>

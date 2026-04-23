@@ -1,4 +1,5 @@
 import { Col, Container, Row } from 'react-bootstrap';
+import { Category } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import TemplateFilter from '@/components/TemplateFilter';
 import { loggedInProtectedPage } from '@/lib/page-protection';
@@ -27,7 +28,15 @@ const ListPage = async () => {
 
   // check templateitem and templatefilter
 
-  const categories = [...new Set(templates.map(t => t.category))].filter(Boolean);
+  const categories = Object.values(Category);
+
+  const commentCountsRaw = await prisma.comment.groupBy({
+    by: ['templateId'],
+    _count: { id: true },
+  });
+  const commentCounts: Record<number, number> = Object.fromEntries(
+    commentCountsRaw.map(r => [r.templateId, r._count.id]),
+  );
 
   return (
     <main>
@@ -56,7 +65,7 @@ const ListPage = async () => {
         <Row>
           <Col>
             {/* Filter bar — client component */}
-            <TemplateFilter templates={templates} categories={categories} authors={users} />
+            <TemplateFilter templates={templates} categories={categories} authors={users} commentCounts={commentCounts} />
           </Col>
         </Row>
       </Container>
