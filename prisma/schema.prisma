@@ -18,13 +18,24 @@ model User {
 
 model Template {
   id        Int       @id @default(autoincrement())
-  title     String    @unique   
+  title     String    @unique
   template  String
-  category  Category 
+  category  Category
   tags      String[]
   author    String
   used      Int      @default(0)
   usages    TemplateUsage[]
+  comments  Comment[]
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  body        String
+  authorEmail String
+  authorName  String
+  templateId  Int
+  template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }
 
 model TemplateUsage {

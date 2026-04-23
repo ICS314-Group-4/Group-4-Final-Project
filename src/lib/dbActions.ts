@@ -22,10 +22,10 @@ const categoryMap: Record<string, Category> = {
  * @param template, an object with the following properties: title, template, category, author, tags, used.
  */
 export async function addTemplate(template: { title: string; template: string; category: string; author: string; tags: string[]; used: number }) {
-  
+
   const validatedCategory = categoryMap[template.category] || template.category;
 
-  await prisma.template.create({
+  const created = await prisma.template.create({
     data: {
       title: template.title,
       template: template.template,
@@ -35,7 +35,7 @@ export async function addTemplate(template: { title: string; template: string; c
       used: template.used,
     },
   });
-  redirect('/list');
+  return created.id;
 }
 
 export async function editTemplate(template: Template) {
@@ -64,6 +64,32 @@ export async function deleteTemplate(id: number) {
   });
   // After deleting, redirect to the list page
   redirect('/list');
+}
+
+/**
+ * Adds a comment to a template.
+ */
+export async function addComment(comment: { body: string; authorEmail: string; authorName: string; templateId: number }) {
+  await prisma.comment.create({
+    data: {
+      body: comment.body,
+      authorEmail: comment.authorEmail,
+      authorName: comment.authorName,
+      templateId: comment.templateId,
+    },
+  });
+}
+
+/**
+ * Deletes a comment. Only the author or an admin can delete.
+ */
+export async function deleteComment(commentId: number, requesterEmail: string) {
+  const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+  if (!comment) return;
+  const requester = await prisma.user.findUnique({ where: { email: requesterEmail } });
+  if (!requester) return;
+  if (comment.authorEmail !== requesterEmail && requester.role !== 'ADMIN') return;
+  await prisma.comment.delete({ where: { id: commentId } });
 }
 
 /**
