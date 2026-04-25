@@ -56,15 +56,25 @@ const AdminPage = async () => {
             <Table striped bordered hover>
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Email</th>
+                  <th>Name</th>
                   <th>Role</th>
+                  <th>Signature</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
+                    <td>{user.id}</td>
                     <td>{user.email}</td>
+                    <td>{user.name}</td>
                     <td>{user.role}</td>
+                    <td>
+                      <pre>
+                        {user.sign}
+                      </pre>
+                    </td>
                   </tr>
                 ))}
               </tbody>
