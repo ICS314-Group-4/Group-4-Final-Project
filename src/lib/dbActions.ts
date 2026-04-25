@@ -122,3 +122,17 @@ export async function changePassword(credentials: { email: string; password: str
     },
   });
 }
+
+/**
+ * edits the name and signature of an existing user
+ */
+export async function editProfile(credentials: { email: string; newName: string; newSig: string }) {
+  // console.log(`editProfile data: ${JSON.stringify(credentials, null, 2)}`);
+  await prisma.user.update({
+    where: { email: credentials.email },
+    data: {
+      name: credentials.newName,
+      sign: credentials.newSig,
+    },
+  });
+}

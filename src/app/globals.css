@@ -37,9 +37,11 @@ body .navbar {
 }
 .button{
   background-color: var(--uh-green);
+  border: none !important;
 }
 .button:hover{
   background-color: var(--uh-green-dark);
+}
 
 #template-item .template-tag {
   background-color: var(--uh-green) !important;
