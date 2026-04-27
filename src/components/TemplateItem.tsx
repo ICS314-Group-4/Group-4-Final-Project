@@ -5,8 +5,15 @@ import { Template } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
 
 /* Renders a single row in the Browse Templates table. See list/page.tsx. */
-const TemplateItem = ({ template, authorName, commentCount = 0 }: { template: Template; authorName?: string; commentCount?: number }) => {
+const TemplateItem = ({ template, authorName, commentCount = 0, onTagClick }: { template: Template; authorName?: string; commentCount?: number; onTagClick?: (tag: string) => void }) => {
   const router = useRouter();
+
+
+  const tagSearchEvent = (e: React.MouseEvent, tag: string) => {
+    e.stopPropagation();
+    if (onTagClick) onTagClick(tag);
+  };
+
   return (
     <tr
       className="align-middle"
@@ -28,13 +35,13 @@ const TemplateItem = ({ template, authorName, commentCount = 0 }: { template: Te
         {template.tags?.length > 0 && (
           <div className="mt-1 d-flex flex-wrap gap-1">
             {template.tags.map((tag) => (
-              <span
+              <button
                 key={tag}
-                className="badge fw-normal"
-                style={{ backgroundColor: '#024731', fontSize: '0.7rem' }}
+                className="badge fw-normal tag-badge"
+                onClick={(e) => tagSearchEvent(e, tag)}
               >
                 {tag}
-              </span>
+              </button>
             ))}
           </div>
         )}

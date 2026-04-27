@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -34,9 +34,17 @@ const AddTemplateForm: React.FC = () => {
     resolver: yupResolver(AddTemplateSchema),
     defaultValues: { tags: [] },
   });
-  const watchTitle = useWatch({ control, name: 'title' });
-  const watchTemplate = useWatch({ control, name: 'template' });
-  const watchCategory = useWatch({ control, name: 'category' });
+  const watchTitle = watch('title');
+  const watchTemplate = watch('template');
+  const watchCategory = watch('category');
+  const [existingTags, setExistingTags] = useState<string[]>([]);
+
+  useEffect(() => { // API call for tag suggestions3
+  fetch('/api/tags')
+    .then(res => res.json())
+    .then(data => setExistingTags(data))
+    .catch(err => console.error('Failed to load tag suggestions', err));
+}, []);
 
   if (status === 'loading') return <LoadingSpinner />;
   if (status === 'unauthenticated') redirect('/auth/signin');
@@ -61,6 +69,18 @@ const AddTemplateForm: React.FC = () => {
     setTags(updated);
     setValue('tags', updated);
   };
+
+  {/* Keyboard helper for creating tags. Pressing 'Enter' calls addTag, pressing 'Backspace* or 'Delete' calls removeTag */}
+  const tagKeyboardHelper = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    addTag(e);
+  } else if ((e.key === 'Backspace' || e.key === 'Delete') && tagInput === '' && tags.length > 0) {
+    e.preventDefault();
+    const lastTag = tags[tags.length - 1];
+    removeTag(lastTag);
+  }
+};
 
   const onSubmit = async (data: {
     title: string;
@@ -166,7 +186,7 @@ const AddTemplateForm: React.FC = () => {
           {/* Tags */}
           <Form.Group className="mb-5">
             <Form.Label className="fw-semibold">
-              Tags <span className="text-muted fw-normal">(optional — press Enter to add)</span>
+              Tags <span className="text-muted fw-normal">(optional — press Enter to add or press Backspace to delete)</span>
             </Form.Label>
             <div
               className="d-flex flex-wrap gap-2 align-items-center p-2"
@@ -191,11 +211,18 @@ const AddTemplateForm: React.FC = () => {
                   </button>
                 </span>
               ))}
+              {/* Suggests tags mapped to what is currently typed */}
+              <datalist id="tag-suggestions"> 
+                {existingTags.filter(tag => !tags.includes(tag)).map(tag => (
+                  <option key={tag} value={tag} />
+                ))}
+              </datalist>
               <input
                 type="text"
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
-                onKeyDown={addTag}
+                onKeyDown={tagKeyboardHelper} // Redirected to tagKeyboardHelper to allow deletion of tags with keyboard as well.
+                list={tagInput.length > 0 ? "tag-suggestions" : undefined}
                 placeholder={tags.length === 0 ? 'e.g. password, reset, uh-username' : ''}
                 style={{
                   border: 'none', outline: 'none', flexGrow: 1,
