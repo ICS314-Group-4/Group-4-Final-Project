@@ -1,8 +1,9 @@
-import { Col, Container, Row, Table } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import { prisma } from '@/lib/prisma';
 import TemplateFilterAdmin from '@/components/TemplateFilterAdmin';
 import { adminProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
+import UserFilterAdmin from '@/components/UserFilterAdmin';
 
 const AdminPage = async () => {
   const session = await auth();
@@ -18,6 +19,7 @@ const AdminPage = async () => {
   const users = await prisma.user.findMany({});
 
   const categories = [...new Set(templates.map(t => t.category))].filter(Boolean);
+  const roles = [...new Set(users.map(u => u.role))].filter(Boolean);
 
   return (
     <main>
@@ -42,6 +44,10 @@ const AdminPage = async () => {
         </Container>
       </div>
       <Container fluid className="px-4 py-4">
+        <div className="mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
+            <h2 className="h4 fw-bold mb-0" style={{ color: '#024731' }}>Content Templates</h2>
+            <span className="badge rounded-pill bg-light text-dark border">{templates.length} Templates</span>
+        </div>
         <Row>
           <Col>
             {/* Filter bar — client component */}
@@ -49,36 +55,15 @@ const AdminPage = async () => {
           </Col>
         </Row>
       </Container>
-      <Container>
+      <Container fluid className="px-4 py-4">
+        <div className="mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
+            <h2 className="h4 fw-bold mb-0" style={{ color: '#024731' }}>User Management</h2>
+            <span className="badge rounded-pill bg-light text-dark border">{users.length} Users</span>
+        </div>
         <Row>
           <Col>
-            <h1>List Users Admin</h1>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Signature</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.email}</td>
-                    <td>{user.name}</td>
-                    <td>{user.role}</td>
-                    <td>
-                      <pre>
-                        {user.sign}
-                      </pre>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            {/* Filter bar — client component */}
+            <UserFilterAdmin user={users} roles={roles}/>
           </Col>
         </Row>
       </Container>
