@@ -49,6 +49,7 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
   const [search, setSearch] = useState(initialSearch);
   const [sortCol, setSortCol] = useState<SortCol>('used');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [existingTags, setExistingTags] = useState<string[]>([]);
 
   const authorNames = Object.fromEntries(
     authors.map(({ email, name }) => [email, name ?? email]),
@@ -79,12 +80,9 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
     return matchesCategory && matchesSearch;
   });
 
-  {/* Click event to automatically search for tags with same name as clicked tag */}
   const tagSearchEvent = (tag: string) => {
     setSearch(tag);
   };
-  
-    const [existingTags, setExistingTags] = useState<string[]>([]);
 
   useEffect(() => {
   fetch('/api/tags')
@@ -190,7 +188,7 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
             </tr>
           </thead>
           <tbody>
-            {filtered.map(t => (
+            {sorted.map(t => (
               <TemplateItem key={t.id} template={t} authorName={authorNames[t.author]} commentCount={commentCounts[t.id] ?? 0} onTagClick={tagSearchEvent} /> 
             ))}
           </tbody>

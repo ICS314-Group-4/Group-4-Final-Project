@@ -34,9 +34,9 @@ const AddTemplateForm: React.FC = () => {
     resolver: yupResolver(AddTemplateSchema),
     defaultValues: { tags: [] },
   });
-  const watchTitle = watch('title');
-  const watchTemplate = watch('template');
-  const watchCategory = watch('category');
+  const watchTitle = useWatch({ control, name: 'title' });
+  const watchTemplate = useWatch({ control, name: 'template' });
+  const watchCategory = useWatch({ control, name: 'category' });
   const [existingTags, setExistingTags] = useState<string[]>([]);
 
   useEffect(() => { // API call for tag suggestions3
