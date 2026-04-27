@@ -46,3 +46,16 @@ body .navbar {
 #template-item .template-tag {
   background-color: var(--uh-green) !important;
 }
+
+.tag-badge {
+  background-color: var(--uh-green);
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tag-badge:hover {
+  background-color: var(--uh-green-dark);
+}
