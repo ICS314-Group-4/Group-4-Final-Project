@@ -8,6 +8,16 @@
   --nat-navbar-text-highlight: khaki;
   --uh-green: #024731;
   --uh-green-dark: #001D02;
+
+  /* Design tokens */
+  --surface: #f4f7f5;        /* light section backgrounds */
+  --border: #e4ebe7;         /* all borders and dividers */
+  --badge-bg: #e8f0ec;       /* green-tinted badge backgrounds */
+  --text-muted: #6c757d;     /* secondary text */
+  --text-faint: #adb5bd;     /* placeholder, disabled, delete buttons */
+  --text-xs: 0.75rem;        /* uppercase labels, caps */
+  --text-sm: 0.8rem;         /* meta, dates, badges */
+  --text-base: 0.95rem;      /* primary body */
 }
 html,
 body {

@@ -11,16 +11,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';  
 import { useEffect } from 'react';
 
-const categories = [
-  'Google Core/Consumer Apps',
-  'STAR/Banner',
-  'UH Account',
-  'Duo Mobile/MFA',
-  'Lamaku/Laulima LMS',
-  'Network/Printing',
-  'General Support',
-  'Site License',
-];
 
 const categoryMapping: Record<string, string> = {
   'GOOGLE_APPS': 'Google Core/Consumer Apps',

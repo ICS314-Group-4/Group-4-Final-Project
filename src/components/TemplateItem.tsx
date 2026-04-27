@@ -58,7 +58,7 @@ const TemplateItem = ({ template, authorName, commentCount = 0 }: { template: Te
           style={{
             display: 'inline-block',
             fontSize: '0.78rem',
-            backgroundColor: '#f0f4f2',
+            backgroundColor: '#e8f0ec',
             color: '#024731',
             padding: '3px 10px',
             borderRadius: '12px',
@@ -73,7 +73,7 @@ const TemplateItem = ({ template, authorName, commentCount = 0 }: { template: Te
           style={{
             display: 'inline-block',
             fontSize: '0.78rem',
-            backgroundColor: '#f0f4f2',
+            backgroundColor: '#e8f0ec',
             color: '#024731',
             padding: '3px 10px',
             borderRadius: '12px',

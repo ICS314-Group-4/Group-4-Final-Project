@@ -28,16 +28,13 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
     try {
       await navigator.clipboard.writeText(item.template || '');
       setCopied(true);
-
       const response = await fetch('/api/templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ templateId: item.id }),
       });
-
       const data = await response.json();
       if (!response.ok) console.warn('Counter skipped:', data.message);
-
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Network error:', err);
@@ -75,7 +72,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
             {categoryLabels[item.category]} · #{item.id}
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
-          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>
+          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.875rem' }}>
             By {item.author}
           </p>
         </Container>
@@ -84,14 +81,14 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
       <Container className="py-5" style={{ maxWidth: '800px' }}>
 
         {/* Stats row */}
-        <div className="d-flex gap-4 mb-4 pb-3" style={{ borderBottom: '1px solid #dee2e6' }}>
+        <div className="d-flex gap-4 mb-5 pb-3" style={{ borderBottom: '1px solid #e4ebe7' }}>
           <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{item.used ?? 0}</div>
-            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Times Used</div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6c757d' }}>Times Used</div>
           </div>
           <div>
             <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{comments.length}</div>
-            <div className="text-muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Comments</div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6c757d' }}>Comments</div>
           </div>
         </div>
 
@@ -111,10 +108,10 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           </Button>
         </div>
         <div
-          className="p-4 mb-4"
+          className="p-4 mb-5"
           style={{
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #dee2e6',
+            backgroundColor: '#f4f7f5',
+            border: '1px solid #e4ebe7',
             borderRadius: '0.375rem',
           }}
         >
@@ -148,7 +145,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
               style={{
                 backgroundColor: '#e8f0ec',
                 color: '#024731',
-                border: '1px solid #b8d4c2',
+                border: '1px solid #c8d8d0',
                 borderRadius: '0.375rem',
                 padding: '10px 16px',
                 fontSize: '0.875rem',
@@ -161,7 +158,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           )}
 
           {comments.length === 0 && (
-            <p className="text-muted" style={{ fontSize: '0.9rem' }}>No comments yet. Be the first to leave one.</p>
+            <p style={{ fontSize: '0.95rem', color: '#6c757d' }}>No comments yet. Be the first to leave one.</p>
           )}
 
           {comments.map(c => {
@@ -171,9 +168,9 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
                 key={c.id}
                 className="mb-4 pb-3"
                 style={{
-                  borderBottom: '1px solid #dee2e6',
+                  borderBottom: '1px solid #e4ebe7',
                   ...(isOwn ? {
-                    backgroundColor: '#f4f8f5',
+                    backgroundColor: '#f4f7f5',
                     borderLeft: '3px solid #024731',
                     borderRadius: '0 0.25rem 0.25rem 0',
                     padding: '10px 14px',
@@ -183,13 +180,13 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
               >
                 <div className="d-flex justify-content-between align-items-baseline mb-1">
                   <div className="d-flex gap-2 align-items-baseline">
-                    <span className="fw-semibold" style={{ fontSize: '0.9rem' }}>{c.authorName}</span>
+                    <span className="fw-semibold" style={{ fontSize: '0.95rem' }}>{c.authorName}</span>
                     {isOwn && (
-                      <span style={{ fontSize: '0.7rem', color: '#024731', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#024731', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         you
                       </span>
                     )}
-                    <span className="text-muted" style={{ fontSize: '0.78rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#6c757d' }}>
                       {new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
@@ -197,15 +194,15 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
                     <button
                       onClick={() => handleDeleteComment(c.id)}
                       style={{
-                        background: 'none', border: 'none', color: '#aaa',
-                        fontSize: '0.78rem', cursor: 'pointer', padding: 0,
+                        background: 'none', border: 'none', color: '#adb5bd',
+                        fontSize: '0.8rem', cursor: 'pointer', padding: 0,
                       }}
                     >
                       Delete
                     </button>
                   )}
                 </div>
-                <p className="mb-0" style={{ fontSize: '0.9rem' }}>{c.body}</p>
+                <p className="mb-0" style={{ fontSize: '0.95rem' }}>{c.body}</p>
               </div>
             );
           })}
@@ -220,7 +217,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
               onChange={e => {
                 if (e.target.value.length <= MAX_COMMENT_LENGTH) setCommentBody(e.target.value);
               }}
-              style={{ fontSize: '0.9rem', marginBottom: '6px' }}
+              style={{ fontSize: '0.95rem', marginBottom: '6px', borderColor: '#e4ebe7' }}
             />
             <div className="d-flex justify-content-between align-items-center">
               <div>
@@ -236,7 +233,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
                 )}
               </div>
               {commentBody.length > 0 && (
-                <span style={{ fontSize: '0.78rem', color: commentBody.length > MAX_COMMENT_LENGTH * 0.9 ? '#dc3545' : '#aaa' }}>
+                <span style={{ fontSize: '0.8rem', color: commentBody.length > MAX_COMMENT_LENGTH * 0.9 ? '#dc3545' : '#adb5bd' }}>
                   {commentBody.length} / {MAX_COMMENT_LENGTH}
                 </span>
               )}
@@ -248,8 +245,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
         <div className="mt-5">
           <button
             onClick={() => router.back()}
-            className="text-muted"
-            style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.9rem', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.95rem', color: '#6c757d', cursor: 'pointer' }}
           >
             ← Back
           </button>

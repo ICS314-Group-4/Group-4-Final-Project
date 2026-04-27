@@ -6,7 +6,10 @@ import { loggedInProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
 
 /** Render a list of templates. */
-const ListPage = async () => {
+const ListPage = async ({ searchParams }: { searchParams: Promise<{ category?: string; search?: string }> }) => {
+  const { category, search } = await searchParams;
+  const initialCategory = category ?? 'All';
+  const initialSearch = search ?? '';
   const session = await auth();
   loggedInProtectedPage(
     session as {
@@ -42,7 +45,7 @@ const ListPage = async () => {
     <main>
       {/* Header */}
       <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
-        <Container fluid className="px-4">
+        <Container>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h1 className="fw-bold mb-1">Browse Templates</h1>
@@ -61,11 +64,10 @@ const ListPage = async () => {
         </Container>
       </div>
 
-      <Container fluid className="px-4 py-4">
+      <Container className="py-4">
         <Row>
           <Col>
-            {/* Filter bar — client component */}
-            <TemplateFilter templates={templates} categories={categories} authors={users} commentCounts={commentCounts} />
+            <TemplateFilter templates={templates} categories={categories} authors={users} commentCounts={commentCounts} initialCategory={initialCategory} initialSearch={initialSearch} />
           </Col>
         </Row>
       </Container>
