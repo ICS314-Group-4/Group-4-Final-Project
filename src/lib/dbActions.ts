@@ -62,8 +62,6 @@ export async function deleteTemplate(id: number) {
   await prisma.template.delete({
     where: { id },
   });
-  // After deleting, redirect to the list page
-  redirect('/list');
 }
 
 /**

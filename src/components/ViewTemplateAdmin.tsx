@@ -84,7 +84,7 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
         e.stopPropagation();
         if (confirm(`Delete "${item.title}"?`)) {
           await deleteTemplate(item.id);
-          window.location.href = '/list';
+          window.location.href = '/admin';
         }
       }}
     >
