@@ -25,7 +25,7 @@ const AdminPage = async () => {
     <main>
       {/* Header */}
       <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
-        <Container fluid className="px-4">
+        <Container>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h1 className="fw-bold mb-1">Admin Dashboard</h1>
@@ -43,7 +43,7 @@ const AdminPage = async () => {
           </div>
         </Container>
       </div>
-      <Container fluid className="px-4 py-4">
+      <Container className="py-4">
         <div className="mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
             <h2 className="h4 fw-bold mb-0" style={{ color: '#024731' }}>Content Templates</h2>
             <span className="badge rounded-pill bg-light text-dark border">{templates.length} Templates</span>
@@ -55,7 +55,7 @@ const AdminPage = async () => {
           </Col>
         </Row>
       </Container>
-      <Container fluid className="px-4 py-4">
+      <Container className="py-4">
         <div className="mb-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
             <h2 className="h4 fw-bold mb-0" style={{ color: '#024731' }}>User Management</h2>
             <span className="badge rounded-pill bg-light text-dark border">{users.length} Users</span>
