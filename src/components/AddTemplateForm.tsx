@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSession } from 'next-auth/react';
 import { redirect, useRouter } from 'next/navigation';
@@ -30,7 +30,7 @@ const AddTemplateForm: React.FC = () => {
   const [toastFading, setToastFading] = useState(false);
 
   const [showPreview, setShowPreview] = useState(false);
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
     resolver: yupResolver(AddTemplateSchema),
     defaultValues: { tags: [] },
   });
@@ -190,7 +190,7 @@ const AddTemplateForm: React.FC = () => {
             </Form.Label>
             <div
               className="d-flex flex-wrap gap-2 align-items-center p-2"
-              style={{ border: '1px solid #dee2e6', borderRadius: '0.375rem', minHeight: '44px' }}
+              style={{ border: '1px solid #e4ebe7', borderRadius: '0.375rem', minHeight: '44px' }}
             >
               {tags.map(tag => (
                 <span
@@ -249,7 +249,7 @@ const AddTemplateForm: React.FC = () => {
             <div
               className="mb-4"
               style={{
-                border: '1px solid #dee2e6',
+                border: '1px solid #e4ebe7',
                 borderRadius: '0.375rem',
                 overflow: 'hidden',
               }}
@@ -262,7 +262,7 @@ const AddTemplateForm: React.FC = () => {
                   {watchTitle || 'No title yet'}
                 </div>
               </div>
-              <div style={{ padding: '20px 24px', backgroundColor: '#f8f9fa' }}>
+              <div style={{ padding: '20px 24px', backgroundColor: '#f4f7f5' }}>
                 <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.9rem', marginBottom: 0, color: watchTemplate ? '#212529' : '#aaa' }}>
                   {watchTemplate || 'Email body will appear here...'}
                 </pre>

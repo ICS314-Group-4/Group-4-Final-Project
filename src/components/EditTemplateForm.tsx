@@ -8,19 +8,47 @@ import { Template } from '@prisma/client';
 import { EditTemplateSchema } from '@/lib/validationSchemas';
 import { editTemplate } from '@/lib/dbActions';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';  
+import { useEffect } from 'react';
 
-const categories = [
-  'Google Core/Consumer Apps',
-  'STAR/Banner',
-  'UH Account',
-  'Duo Mobile/MFA',
-  'Lamaku/Laulima LMS',
-  'Network/Printing',
-  'General Support',
-  'Site License',
-];
 
-const onSubmit = async (data: Template) => {
+const categoryMapping: Record<string, string> = {
+  'GOOGLE_APPS': 'Google Core/Consumer Apps',
+  'STAR_BANNER': 'STAR/Banner',
+  'UH_ACCOUNT': 'UH Account',
+  'DUO_MOBILE_MFA': 'Duo Mobile/MFA',
+  'LAMAKU_LAULIMA': 'Lamaku/Laulima LMS',
+  'NETWORK_PRINTING': 'Network/Printing',
+  'GENERAL_SUPPORT': 'General Support',
+  'SITE_LICENSE': 'Site License',
+};
+
+
+const EditTemplateForm = ({ template }: { template: Template }) => {
+  const [tags, setTags] = useState<string[]>(template.tags || []);
+  const [tagInput, setTagInput] = useState('');
+
+  const router = useRouter();
+  
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<Template>({
+    resolver: yupResolver(EditTemplateSchema),
+    defaultValues: {
+      ...template,
+      category: template.category,
+    },
+  });
+
+  useEffect(() => {
+  setValue('tags', tags);
+}, [tags, setValue]);
+
+  const onSubmit = async (data: Template) => {
   // console.log(`onSubmit data: ${JSON.stringify(data, null, 2)}`);
   try { 
   await editTemplate(data);
@@ -31,26 +59,12 @@ const onSubmit = async (data: Template) => {
       timer: 2000,
       buttons: [false],
     });
-    window.location.href = '/list'; 
+    router.push('/list'); 
   } catch (error) {
     console.error(error);
     swal("Error", "Something went wrong.", "error");
   }
 };
-
-const EditTemplateForm = ({ template }: { template: Template }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<Template>({
-    resolver: yupResolver(EditTemplateSchema),
-    defaultValues: template,
-  });
-
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
   
     const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' || e.key === ',') {
@@ -66,6 +80,12 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
    const removeTag = (tag: string) => {
     setTags(tags.filter(t => t !== tag));
   };
+
+  const handleReset = () => {
+  reset();            // Clears title, template, category, etc.
+  setTags(template.tags || []);        // Clears your local tags state
+  setTagInput('');    // Clears the input field
+};
 
   return (
     <main>
@@ -120,9 +140,9 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
                     isInvalid={!!errors.category}
                   >
                     <option value="">Select a category...</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
+                    {Object.entries(categoryMapping).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
                       </option>
                     ))}
                   </Form.Select>
@@ -185,7 +205,7 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
                   <Col>
                     <Button 
                       type="button" 
-                      onClick={() => reset()} 
+                      onClick={handleReset} 
                       variant="outline-warning" 
                       className="w-100"
                     >

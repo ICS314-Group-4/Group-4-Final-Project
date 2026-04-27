@@ -19,9 +19,19 @@ export default function ViewTemplateAdmin({ item }: { item: Template }) {
     try {
       await navigator.clipboard.writeText(item.template || '');
       setCopied(true);
+
+      const response = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: item.id }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) console.warn('Counter skipped:', data.message);
+
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error('Network error:', err);
     }
   };
 
