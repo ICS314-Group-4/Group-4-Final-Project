@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSession } from 'next-auth/react';
 import { redirect, useRouter } from 'next/navigation';
@@ -30,13 +30,13 @@ const AddTemplateForm: React.FC = () => {
   const [toastFading, setToastFading] = useState(false);
 
   const [showPreview, setShowPreview] = useState(false);
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
     resolver: yupResolver(AddTemplateSchema),
     defaultValues: { tags: [] },
   });
-  const watchTitle = watch('title');
-  const watchTemplate = watch('template');
-  const watchCategory = watch('category');
+  const watchTitle = useWatch({ control, name: 'title' });
+  const watchTemplate = useWatch({ control, name: 'template' });
+  const watchCategory = useWatch({ control, name: 'category' });
 
   if (status === 'loading') return <LoadingSpinner />;
   if (status === 'unauthenticated') redirect('/auth/signin');

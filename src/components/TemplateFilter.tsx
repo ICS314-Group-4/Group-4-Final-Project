@@ -9,6 +9,32 @@ import { categoryLabels } from '@/lib/categoryLabels';
 type SortCol = 'title' | 'category' | 'author' | 'used' | 'comments';
 type SortDir = 'asc' | 'desc';
 
+const SortHeader = ({ col, label, width, sortCol, sortDir, onSort }: {
+  col: SortCol; label: string; width: string;
+  sortCol: SortCol; sortDir: SortDir; onSort: (col: SortCol) => void;
+}) => {
+  const active = sortCol === col;
+  return (
+    <th className="py-3" style={{ width }}>
+      <button
+        onClick={() => onSort(col)}
+        style={{
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: '4px',
+          fontSize: '0.75rem', fontWeight: 600,
+          textTransform: 'uppercase', letterSpacing: '0.06em',
+          color: active ? '#024731' : '#6c757d',
+        }}
+      >
+        {label}
+        <span style={{ fontSize: '0.6rem', opacity: active ? 1 : 0.35 }}>
+          {active && sortDir === 'asc' ? '▲' : '▼'}
+        </span>
+      </button>
+    </th>
+  );
+};
+
 type Props = {
   templates: Template[];
   categories: string[];
@@ -69,29 +95,6 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
     return sortDir === 'asc' ? aVal - (bVal as number) : (bVal as number) - aVal;
   });
 
-  const SortHeader = ({ col, label, width }: { col: SortCol; label: string; width: string }) => {
-    const active = sortCol === col;
-    return (
-      <th className="py-3" style={{ width }}>
-        <button
-          onClick={() => handleSort(col)}
-          style={{
-            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: '4px',
-            fontSize: '0.75rem', fontWeight: 600,
-            textTransform: 'uppercase', letterSpacing: '0.06em',
-            color: active ? '#024731' : '#6c757d',
-          }}
-        >
-          {label}
-          <span style={{ fontSize: '0.6rem', opacity: active ? 1 : 0.35 }}>
-            {active && sortDir === 'asc' ? '▲' : '▼'}
-          </span>
-        </button>
-      </th>
-    );
-  };
-
   return (
     <>
       {/* Search + filters */}
@@ -132,11 +135,11 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
         <Table hover responsive className="w-100" style={{ tableLayout: 'fixed' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #dee2e6' }}>
-              <SortHeader col="title"    label="Template" width="38%" />
-              <SortHeader col="category" label="Category" width="21%" />
-              <SortHeader col="author"   label="Author"   width="21%" />
-              <SortHeader col="used"     label="Used"     width="10%" />
-              <SortHeader col="comments" label="Comments" width="10%" />
+              <SortHeader col="title"    label="Template" width="38%" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
+              <SortHeader col="category" label="Category" width="21%" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
+              <SortHeader col="author"   label="Author"   width="21%" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
+              <SortHeader col="used"     label="Used"     width="10%" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
+              <SortHeader col="comments" label="Comments" width="10%" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
             </tr>
           </thead>
           <tbody>
