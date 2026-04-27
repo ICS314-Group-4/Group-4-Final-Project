@@ -2,13 +2,13 @@ import { Col, Container, Row, Table } from 'react-bootstrap';
 import { prisma } from '@/lib/prisma';
 import TemplateItem from '@/components/TemplateItem';
 import TemplateFilter from '@/components/TemplateFilter';
-import { loggedInProtectedPage } from '@/lib/page-protection';
+import { landingProtectionPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
 
 /** Render a list of templates. */
 const ListPage = async () => {
   const session = await auth();
-  loggedInProtectedPage(
+  landingProtectionPage(
     session as {
       user: { email: string; id: string; name: string };
     } | null,

@@ -1,10 +1,10 @@
-import { loggedInProtectedPage } from '@/lib/page-protection';
+import { landingProtectionPage } from '@/lib/page-protection';
 import AddTemplateForm from '@/components/AddTemplateForm';
 import { auth } from '@/lib/auth';
 
 const AddTemplate = async () => {
   const session = await auth();
-  loggedInProtectedPage(
+  landingProtectionPage(
     session as {
       user: { email: string; id: string; name: string };
     } | null,
