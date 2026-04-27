@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
-import { Stuff } from '@prisma/client';
+import { Template } from '@prisma/client';
 import { landingProtectionPage } from '@/lib/page-protection';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import EditStuffForm from '@/components/EditStuffForm';
+import EditTemplateForm from '@/components/EditTemplateForm';
 
-export default async function EditStuffPage({ params }: { params: { id: string | string[] } }) {
+export default async function EditTemplatePage({ params }: { params: { id: string | string[] } }) {
   const { id } = await params;
   // Protect the page, only logged in users can access it.
   const session = await auth();
@@ -15,18 +15,18 @@ export default async function EditStuffPage({ params }: { params: { id: string |
     } | null,
   );
   const editID: number = +id;
-  const stuff: Stuff | null = await prisma.stuff.findUnique({
+  const template: Template | null = await prisma.template.findUnique({
     where: {
       id: editID,
     },
   });
-  if (!stuff) {
+  if (!template) {
     return notFound();
   }
 
   return (
     <main>
-      <EditStuffForm stuff={stuff} />
+      <EditTemplateForm template={template} />
     </main>
   );
 }

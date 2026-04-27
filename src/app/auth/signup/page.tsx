@@ -8,6 +8,7 @@ import { Card, Col, Container, Button, Form, Row } from 'react-bootstrap';
 import { createUser } from '@/lib/dbActions';
 
 type SignUpForm = {
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -18,6 +19,8 @@ type SignUpForm = {
 const SignUp = () => {
   const validationSchema = Yup.object().shape({
     email: Yup.string().required('Email is required').email('Email is invalid'),
+    name: Yup.string().required('Name is required').min(2, 'Name must be at least 2 characters').max(100, 'Name must not exceed 100 characters'),
+    // max length 100 is completely arbitrary, can change if it causes issues, I just know a bunch of people that get screwed by small max limits lol
     password: Yup.string()
       .required('Password is required')
       .min(6, 'Password must be at least 6 characters')
@@ -60,6 +63,16 @@ const SignUp = () => {
                       className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                     />
                     <div className="invalid-feedback">{errors.email?.message}</div>
+                  </Form.Group>
+
+                  <Form.Group className="form-group">
+                    <Form.Label>Name</Form.Label>
+                    <input
+                      type="text"
+                      {...register('name')}
+                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                    />
+                    <div className="invalid-feedback">{errors.name?.message}</div>
                   </Form.Group>
 
                   <Form.Group className="form-group">
