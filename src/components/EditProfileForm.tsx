@@ -55,6 +55,9 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
                 className={`form-control ${errors.newName ? 'is-invalid' : ''}`}
             />
             <div className="invalid-feedback">{errors.newName?.message}</div>
+            <Form.Text className="text-muted">
+              This name will be shown to other users when you post templates and comments. It does not need to be your real name, but it should be something you can be identified by.
+            </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-4">
@@ -66,6 +69,9 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
                 style={{ resize: 'vertical' }}
             />
             <div className="invalid-feedback">{errors.newSig?.message}</div>
+            <Form.Text className="text-muted">
+              This signature will be automatically appended to the end of any template you copy. You can use it to add contact information and/or sign-offs.
+            </Form.Text>
             </Form.Group>
 
             <Form.Group className="py-3">
