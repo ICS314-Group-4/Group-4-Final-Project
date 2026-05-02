@@ -172,14 +172,14 @@ const AddTemplateForm: React.FC = () => {
             <Form.Control
               as="textarea"
               rows={10}
-              placeholder={`Aloha [Student Name],\n\nMahalo for reaching out to the UH ITS Help Desk...\n\nMahalo,\n[Your Name]\nUH ITS Help Desk`}
+              placeholder={`Aloha [Student Name],\n\nMahalo for reaching out to the UH ITS Help Desk...\n\n`}
               style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
               {...register('template')}
               isInvalid={!!errors.template}
             />
             <Form.Control.Feedback type="invalid">{errors.template?.message}</Form.Control.Feedback>
             <Form.Text className="text-muted">
-              Use placeholders like [Student Name] so others can quickly customize.
+              Use placeholders like [Student Name] so others can quickly customize, but don&apos;t include a placeholder for sign-offs or sender contact info. The user&apos;s signature will be automatically appended when they press copy.
             </Form.Text>
           </Form.Group>
 

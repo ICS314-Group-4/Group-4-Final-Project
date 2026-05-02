@@ -42,8 +42,8 @@ const SignUp = () => {
   const onSubmit = async (data: SignUpForm) => {
     // console.log(JSON.stringify(data, null, 2));
     await createUser(data);
-    // After creating, signIn with redirect to the add page
-    await signIn('credentials', { callbackUrl: '/add', ...data });
+    // After creating, signIn with redirect to the home page
+    await signIn('credentials', { callbackUrl: '/auth/edit-profile', ...data });
   };
 
   return (
@@ -73,6 +73,9 @@ const SignUp = () => {
                       className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     />
                     <div className="invalid-feedback">{errors.name?.message}</div>
+                    <Form.Text className="text-muted">
+                      This name will be shown to other users when you post templates and comments. It does not need to be your real name, but it should be something you can be identified by.
+                    </Form.Text>
                   </Form.Group>
 
                   <Form.Group className="form-group">

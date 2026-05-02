@@ -14,10 +14,11 @@ type Props = {
   comments: Comment[];
   currentUserEmail: string;
   currentUserName: string;
+  currentUserSign: string;
   isAdmin: boolean;
 };
 
-export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, isAdmin }: Props) {
+export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState('');
@@ -26,7 +27,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(item.template || '');
+      await navigator.clipboard.writeText((item.template || '') + '\n' + currentUserSign);
       setCopied(true);
       const response = await fetch('/api/templates', {
         method: 'POST',
