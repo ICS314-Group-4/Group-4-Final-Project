@@ -16,7 +16,11 @@ const EditProfilePage = async ({ searchParams }: { searchParams: Promise<{ id?: 
   );
 
   const currentUserId = Number(session?.user?.id);
-  const targetUserId = Number(id) ?? currentUserId;
+  const parsedId = id ? Number(id) : NaN;
+  // if id is not provided in the url, set it to nan
+  const targetUserId = Number.isInteger(parsedId) ? parsedId : currentUserId;
+  // if parsed id is nan, use the currentUserId instead
+  
 
   if (targetUserId !== currentUserId && session?.user?.role !== 'ADMIN') {
     redirect('/not-authorized');

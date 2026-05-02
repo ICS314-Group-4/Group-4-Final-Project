@@ -42,7 +42,7 @@ const SignUp = () => {
   const onSubmit = async (data: SignUpForm) => {
     // console.log(JSON.stringify(data, null, 2));
     await createUser(data);
-    // After creating, signIn with redirect to the home page
+    // After creating, signIn with redirect to the edit profile page where they can set up a signature
     await signIn('credentials', { callbackUrl: '/auth/edit-profile', ...data });
   };
 
