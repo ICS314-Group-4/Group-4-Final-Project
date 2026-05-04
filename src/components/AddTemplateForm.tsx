@@ -28,6 +28,7 @@ const AddTemplateForm: React.FC = () => {
   const [tagInput, setTagInput] = useState('');
   const [published, setPublished] = useState(false);
   const [toastFading, setToastFading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const [showPreview, setShowPreview] = useState(false);
   const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
@@ -88,7 +89,8 @@ const AddTemplateForm: React.FC = () => {
     category: string;
     tags: (string | undefined)[];
   }) => {
-    const newId = await addTemplate({
+    setServerError('');
+    const result = await addTemplate({
       title: data.title,
       template: data.template,
       category: data.category,
@@ -96,10 +98,14 @@ const AddTemplateForm: React.FC = () => {
       tags: (data.tags ?? []).filter((t): t is string => !!t),
       used: 0,
     });
+    if ('error' in result) {
+      setServerError(result.error);
+      return;
+    }
     setPublished(true);
     setToastFading(false);
     setTimeout(() => setToastFading(true), 3500);
-    setTimeout(() => router.push(`/view/${newId}`), 5000);
+    setTimeout(() => router.push(`/view/${result.id}`), 5000);
   };
 
   return (
@@ -138,6 +144,16 @@ const AddTemplateForm: React.FC = () => {
             }}
           >
             Template published! Taking you there now...
+          </div>
+        )}
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            {serverError}
           </div>
         )}
         <Form onSubmit={handleSubmit(onSubmit)}>

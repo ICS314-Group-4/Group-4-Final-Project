@@ -13,7 +13,9 @@ const errorMessages: Record<string, string> = {
 const SignInForm = () => {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
+  const reset = searchParams.get('reset');
   const errorMessage = error ? (errorMessages[error] ?? errorMessages.default) : null;
+  const resetSuccess = reset === 'success';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,16 +62,22 @@ const SignInForm = () => {
           padding: '2rem',
           boxShadow: '0 4px 24px rgba(2,71,49,0.08)',
         }}>
+          {resetSuccess && (
+            <div style={{
+              backgroundColor: '#e8f0ec', border: '1px solid #c8d8d0',
+              borderRadius: '0.375rem', padding: '10px 16px',
+              fontSize: '0.875rem', color: '#024731',
+              marginBottom: '1.25rem', fontWeight: 500,
+            }}>
+              Password reset successfully. Sign in with your new password.
+            </div>
+          )}
           {errorMessage && (
             <div style={{
-              backgroundColor: '#fff3f3',
-              border: '1px solid #f5c6cb',
-              borderRadius: '0.375rem',
-              padding: '10px 16px',
-              fontSize: '0.875rem',
-              color: '#842029',
-              marginBottom: '1.25rem',
-              fontWeight: 500,
+              backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+              borderRadius: '0.375rem', padding: '10px 16px',
+              fontSize: '0.875rem', color: '#842029',
+              marginBottom: '1.25rem', fontWeight: 500,
             }}>
               {errorMessage}
             </div>
@@ -105,10 +113,15 @@ const SignInForm = () => {
             </Button>
           </Form>
 
-          <p className="mt-4 mb-0 text-center" style={{ fontSize: '0.875rem', color: '#6c757d' }}>
-            Don&apos;t have an account?{' '}
-            <a href="/auth/signup" style={{ color: '#024731', fontWeight: 500 }}>Sign up</a>
-          </p>
+          <div className="mt-4 text-center" style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+            <p className="mb-1">
+              <a href="/auth/reset-password" style={{ color: '#024731', fontWeight: 500 }}>Forgot password?</a>
+            </p>
+            <p className="mb-0">
+              Don&apos;t have an account?{' '}
+              <a href="/auth/signup" style={{ color: '#024731', fontWeight: 500 }}>Sign up</a>
+            </p>
+          </div>
         </div>
       </Container>
     </main>

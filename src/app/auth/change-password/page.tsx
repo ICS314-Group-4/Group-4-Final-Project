@@ -1,11 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSession } from 'next-auth/react'; // v5 compatible
+import { useSession } from 'next-auth/react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import swal from 'sweetalert';
-import { Card, Col, Container, Button, Form, Row } from 'react-bootstrap';
+import { Container, Form, Button } from 'react-bootstrap';
 import { changePassword } from '@/lib/dbActions';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
@@ -13,100 +13,132 @@ type ChangePasswordForm = {
   oldpassword: string;
   password: string;
   confirmPassword: string;
-  // acceptTerms: boolean;
 };
 
-/** The change password page. */
+const validationSchema = Yup.object({
+  oldpassword: Yup.string().required('Current password is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(8, 'Must be at least 8 characters')
+    .max(32, 'Must not exceed 32 characters')
+    .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+    .matches(/[0-9]/, 'Must contain at least one number'),
+  confirmPassword: Yup.string()
+    .required('Please confirm your password')
+    .oneOf([Yup.ref('password')], 'Passwords do not match'),
+});
+
 const ChangePassword = () => {
   const { data: session, status } = useSession();
   const email = session?.user?.email || '';
-  const validationSchema = Yup.object().shape({
-    oldpassword: Yup.string().required('Password is required'),
-    password: Yup.string()
-      .required('Password is required')
-      .min(6, 'Password must be at least 6 characters')
-      .max(40, 'Password must not exceed 40 characters'),
-    confirmPassword: Yup.string()
-      .required('Confirm Password is required')
-      .oneOf([Yup.ref('password'), ''], 'Confirm Password does not match'),
-  });
+  const [saved, setSaved] = useState(false);
+  const [serverError, setServerError] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ChangePasswordForm>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ChangePasswordForm>({
     resolver: yupResolver(validationSchema),
   });
 
-  const onSubmit = async (data: ChangePasswordForm) => {
-    // console.log(JSON.stringify(data, null, 2));
-    await changePassword({ email, ...data });
-    await swal('Password Changed', 'Your password has been changed', 'success', { timer: 2000 });
-    reset();
-  };
+  if (status === 'loading') return <LoadingSpinner />;
 
-  if (status === 'loading') {
-    return <LoadingSpinner />;
-  }
+  const onSubmit = async (data: ChangePasswordForm) => {
+    setServerError('');
+    const result = await changePassword({ email, oldpassword: data.oldpassword, password: data.password });
+    if ('error' in result) {
+      setServerError(result.error);
+      return;
+    }
+    reset();
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
 
   return (
     <main>
-      <Container>
-        <Row className="justify-content-center">
-          <Col xs={5}>
-            <h1 className="text-center">Change Password</h1>
-            <Card>
-              <Card.Body>
-                <Form onSubmit={handleSubmit(onSubmit)}>
-                  <Form.Group className="form-group">
-                    <Form.Label>Old Password</Form.Label>
-                    <input
-                      type="password"
-                      {...register('oldpassword')}
-                      className={`form-control ${errors.oldpassword ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.oldpassword?.message}</div>
-                  </Form.Group>
+      <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
+        <Container>
+          <h1 className="fw-bold mb-1">Change Password</h1>
+          <p className="mb-0" style={{ opacity: 0.85, fontSize: '0.95rem' }}>
+            Update your account password.
+          </p>
+        </Container>
+      </div>
 
-                  <Form.Group className="form-group">
-                    <Form.Label>New Password</Form.Label>
-                    <input
-                      type="password"
-                      {...register('password')}
-                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.password?.message}</div>
-                  </Form.Group>
-                  <Form.Group className="form-group">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <input
-                      type="password"
-                      {...register('confirmPassword')}
-                      className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.confirmPassword?.message}</div>
-                  </Form.Group>
-                  <Form.Group className="form-group py-3">
-                    <Row>
-                      <Col>
-                        <Button type="submit" className="btn btn-primary">
-                          Change
-                        </Button>
-                      </Col>
-                      <Col>
-                        <Button type="button" onClick={() => reset()} className="btn btn-warning float-right">
-                          Reset
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Form.Group>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+      <Container className="py-5" style={{ maxWidth: '480px' }}>
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            {serverError}
+          </div>
+        )}
+        {saved && (
+          <div style={{
+            backgroundColor: '#e8f0ec', border: '1px solid #c8d8d0',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#024731',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            Password updated successfully.
+          </div>
+        )}
+
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">Current Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter your current password"
+              {...register('oldpassword')}
+              isInvalid={!!errors.oldpassword}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.oldpassword?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="fw-semibold">New Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Create a new password"
+              {...register('password')}
+              isInvalid={!!errors.password}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
+            <Form.Text className="text-muted">8–32 characters, at least one uppercase letter and one number.</Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-5">
+            <Form.Label className="fw-semibold">Confirm New Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Re-enter your new password"
+              {...register('confirmPassword')}
+              isInvalid={!!errors.confirmPassword}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.confirmPassword?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          <div className="d-flex gap-2">
+            <Button
+              type="submit"
+              style={{ backgroundColor: '#024731', border: 'none', padding: '10px 28px', fontWeight: 600 }}
+            >
+              Save Changes
+            </Button>
+            <Button
+              type="button"
+              variant="outline-secondary"
+              onClick={() => { reset(); setSaved(false); }}
+            >
+              Reset
+            </Button>
+          </div>
+        </Form>
       </Container>
     </main>
   );
