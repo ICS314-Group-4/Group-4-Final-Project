@@ -95,7 +95,6 @@ export async function deleteComment(commentId: number, requesterEmail: string) {
  * @param credentials, an object with the following properties: name, email, password.
  */
 export async function createUser(credentials: { name: string; email: string; password: string }) {
-  // console.log(`createUser data: ${JSON.stringify(credentials, null, 2)}`);
   const password = await hash(credentials.password, 10);
   await prisma.user.create({
     data: {
@@ -104,6 +103,72 @@ export async function createUser(credentials: { name: string; email: string; pas
       password,
     },
   });
+}
+
+/**
+ * Registers a new user via the whitelist + master code flow.
+ * Returns an error string on failure, or { success: true } on success.
+ */
+export async function registerUser(
+  username: string,
+  masterCode: string,
+  password: string,
+): Promise<{ error: string } | { success: true }> {
+  const normalized = username.toLowerCase().trim();
+
+  const entry = await prisma.whitelistEntry.findUnique({ where: { username: normalized } });
+  if (!entry) return { error: 'Username not found. Please contact the site admin.' };
+
+  const config = await prisma.siteConfig.findUnique({ where: { id: 1 } });
+  if (!config || config.masterCode === '' || config.masterCode !== masterCode) {
+    return { error: 'Incorrect master code. Please contact the site admin.' };
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email: normalized } });
+  if (existing) return { error: 'An account with this username already exists.' };
+
+  const hashed = await hash(password, 10);
+  await prisma.user.create({
+    data: { email: normalized, name: entry.name, password: hashed },
+  });
+
+  return { success: true };
+}
+
+/** Returns the current master code. */
+export async function getMasterCode(): Promise<string> {
+  const config = await prisma.siteConfig.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, masterCode: '' },
+  });
+  return config.masterCode;
+}
+
+/** Updates the master code. */
+export async function setMasterCode(code: string) {
+  await prisma.siteConfig.upsert({
+    where: { id: 1 },
+    update: { masterCode: code },
+    create: { id: 1, masterCode: code },
+  });
+}
+
+/** Returns all whitelist entries sorted by username. */
+export async function getWhitelist() {
+  return prisma.whitelistEntry.findMany({ orderBy: { username: 'asc' } });
+}
+
+/** Adds a username + display name to the whitelist. */
+export async function addWhitelistEntry(username: string, name: string) {
+  await prisma.whitelistEntry.create({
+    data: { username: username.toLowerCase().trim(), name: name.trim() },
+  });
+}
+
+/** Removes a whitelist entry by id. */
+export async function removeWhitelistEntry(id: number) {
+  await prisma.whitelistEntry.delete({ where: { id } });
 }
 
 /**

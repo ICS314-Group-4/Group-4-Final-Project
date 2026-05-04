@@ -65,7 +65,7 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
             <textarea
                 {...register('newSig')}
                 className={`form-control ${errors.newSig ? 'is-invalid' : ''}`}
-                rows={15}
+                rows={4}
                 style={{ resize: 'vertical' }}
             />
             <div className="invalid-feedback">{errors.newSig?.message}</div>
@@ -76,7 +76,7 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
 
             <Form.Group className="py-3">
             <Button type="submit" className="button">
-                Edit Profile
+                Save Changes
             </Button>
             <Button type="button" variant='outline-secondary' onClick={() => reset({ newName: name, newSig: signature ?? '' })} className='float-end' >
                 Reset
