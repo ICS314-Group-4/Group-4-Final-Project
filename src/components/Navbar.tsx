@@ -26,6 +26,9 @@ const NavBar: React.FC = () => {
                 <Nav.Link id="add-nav" href="/add" active={pathName === '/add'}>
                   Add Template
                 </Nav.Link>
+                <Nav.Link id="recently-used-nav" href="/recently-used" active={pathName === '/recently-used'}>
+                  Recently Used
+                </Nav.Link>
               </>
             )}
             {currentUser && role === 'ADMIN' && (

@@ -45,6 +45,7 @@ model TemplateUsage {
   template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   templateId Int
 
+  updatedAt  DateTime @updatedAt
   @@unique([userId, templateId])
 }
 
