@@ -16,7 +16,6 @@ export async function POST(req: Request) {
     const tId = Number(templateId);
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Update or Create the usage record
       await tx.templateUsage.upsert({
         where: {
           userId_templateId: {
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
           },
         },
         update: {
-          updatedAt: new Date(), // This moves it to the top of the "Recent" list
+          updatedAt: new Date(),
         },
         create: {
           userId: userId,
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
         },
       });
 
-      // 2. Increment total usage count on the template itself
+      
       return await tx.template.update({
         where: { id: tId },
         data: { used: { increment: 1 } },
