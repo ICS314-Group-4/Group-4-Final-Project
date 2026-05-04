@@ -28,7 +28,7 @@ export default async function RecentlyUsedPage() {
       <h1 className="text-2xl font-bold mb-6">Recently Used Templates</h1>
 
       {recentUsages.length === 0 ? (
-        <p className="text-gray-500">You haven't used any templates yet.</p>
+        <p className="text-gray-500">You have not used any templates yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {recentUsages.map((usage) => (
@@ -37,7 +37,7 @@ export default async function RecentlyUsedPage() {
               href={`/templates/${usage.template.id}`}
               className="border p-4 rounded-lg hover:shadow-md transition"
             >
-              <h2 className="font-semibold">{usage.template.name}</h2>
+              <h2 className="font-semibold">{usage.template.title}</h2>
               <p className="text-xs text-gray-400">
                 Used on: {new Date(usage.updatedAt).toLocaleDateString()}
               </p>
