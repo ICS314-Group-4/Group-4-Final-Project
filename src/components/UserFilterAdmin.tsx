@@ -30,7 +30,7 @@ const UserFilterAdmin = ({ user }: Props) => {
         <input
           type="text"
           className="form-control"
-          placeholder="Search by name or email..."
+          placeholder="Search by name or username..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ maxWidth: '420px', fontSize: '0.9rem' }}
@@ -57,7 +57,7 @@ const UserFilterAdmin = ({ user }: Props) => {
               }}
             >
               <th className="py-3 fw-semibold" style={{ width: '35%' }}>Name</th>
-              <th className="py-3 fw-semibold" style={{ width: '35%' }}>Email</th>
+              <th className="py-3 fw-semibold" style={{ width: '35%' }}>Username</th>
               <th className="py-3 fw-semibold" style={{ width: '20%' }}>Role</th>
               <th className="py-3 fw-semibold text-end" style={{ width: '10%' }}>Actions</th>
             </tr>

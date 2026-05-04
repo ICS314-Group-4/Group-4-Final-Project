@@ -38,18 +38,17 @@ const UserItemAdmin = ({ user }: Props) => {
       <td className="text-muted" style={{ fontSize: '0.85rem', height: '56px' }}>{user.role}</td>
       <td className="text-end" style={{ fontSize: '0.85rem', height: '56px' }} onClick={(e) => e.stopPropagation()}>
       <div className="d-flex justify-content-end gap-2">
-        {!isAdmin && (
-          <>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              style={{ fontSize: '0.75rem' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = `/auth/edit-profile?id=${user.id}`;
-              }}
-            >
-              Edit
-            </button>
+        <button
+            className="btn btn-sm btn-outline-primary"
+            style={{ fontSize: '0.75rem' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = `/auth/edit-profile?id=${user.id}`;
+            }}
+          >
+            Edit
+          </button>
+          {!isAdmin && (
             <button
               className="btn btn-sm btn-outline-danger"
               style={{ fontSize: '0.75rem' }}
@@ -61,9 +60,8 @@ const UserItemAdmin = ({ user }: Props) => {
               }}
             >
               Delete
-          </button>
-          </>
-        )}
+            </button>
+          )}
       </div>
     </td>
     </tr>

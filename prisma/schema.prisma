@@ -48,6 +48,17 @@ model TemplateUsage {
   @@unique([userId, templateId])
 }
 
+model SiteConfig {
+  id         Int    @id @default(1)
+  masterCode String @default("")
+}
+
+model WhitelistEntry {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  name     String
+}
+
 enum Role {
   USER
   ADMIN

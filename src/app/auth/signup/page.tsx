@@ -1,124 +1,145 @@
 'use client';
 
-import { signIn } from 'next-auth/react'; // v5 compatible
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { Card, Col, Container, Button, Form, Row } from 'react-bootstrap';
-import { createUser } from '@/lib/dbActions';
+import { Container, Form, Button } from 'react-bootstrap';
+import { registerUser } from '@/lib/dbActions';
 
-type SignUpForm = {
-  name: string;
-  email: string;
+type FormData = {
+  username: string;
+  masterCode: string;
   password: string;
   confirmPassword: string;
-  // acceptTerms: boolean;
 };
 
-/** The sign up page. */
+const schema = Yup.object({
+  username: Yup.string().required('UH username is required'),
+  masterCode: Yup.string().required('Master code is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(8, 'Must be at least 8 characters')
+    .max(32, 'Must not exceed 32 characters')
+    .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+    .matches(/[0-9]/, 'Must contain at least one number'),
+  confirmPassword: Yup.string()
+    .required('Please confirm your password')
+    .oneOf([Yup.ref('password')], 'Passwords do not match'),
+});
+
 const SignUp = () => {
-  const validationSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email is invalid'),
-    name: Yup.string().required('Name is required').min(2, 'Name must be at least 2 characters').max(100, 'Name must not exceed 100 characters'),
-    // max length 100 is completely arbitrary, can change if it causes issues, I just know a bunch of people that get screwed by small max limits lol
-    password: Yup.string()
-      .required('Password is required')
-      .min(6, 'Password must be at least 6 characters')
-      .max(40, 'Password must not exceed 40 characters'),
-    confirmPassword: Yup.string()
-      .required('Confirm Password is required')
-      .oneOf([Yup.ref('password'), ''], 'Confirm Password does not match'),
+  const [serverError, setServerError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: yupResolver(schema),
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<SignUpForm>({
-    resolver: yupResolver(validationSchema),
-  });
-
-  const onSubmit = async (data: SignUpForm) => {
-    // console.log(JSON.stringify(data, null, 2));
-    await createUser(data);
-    // After creating, signIn with redirect to the edit profile page where they can set up a signature
-    await signIn('credentials', { callbackUrl: '/auth/edit-profile', ...data });
+  const onSubmit = async (data: FormData) => {
+    setSubmitting(true);
+    setServerError('');
+    const result = await registerUser(data.username, data.masterCode, data.password);
+    if ('error' in result) {
+      setServerError(result.error);
+      setSubmitting(false);
+      return;
+    }
+    await signIn('credentials', {
+      callbackUrl: '/auth/edit-profile',
+      email: data.username.toLowerCase().trim(),
+      password: data.password,
+    });
   };
 
   return (
     <main>
-      <Container>
-        <Row className="justify-content-center">
-          <Col xs={5}>
-            <h1 className="text-center">Sign Up</h1>
-            <Card>
-              <Card.Body>
-                <Form onSubmit={handleSubmit(onSubmit)}>
-                  <Form.Group className="form-group">
-                    <Form.Label>Email</Form.Label>
-                    <input
-                      type="text"
-                      {...register('email')}
-                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.email?.message}</div>
-                  </Form.Group>
+      <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
+        <Container>
+          <h1 className="fw-bold mb-1">Create Account</h1>
+          <p className="mb-0" style={{ opacity: 0.85, fontSize: '0.95rem' }}>
+            You need a UH username on the whitelist and the team master code to register.
+          </p>
+        </Container>
+      </div>
 
-                  <Form.Group className="form-group">
-                    <Form.Label>Name</Form.Label>
-                    <input
-                      type="text"
-                      {...register('name')}
-                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.name?.message}</div>
-                    <Form.Text className="text-muted">
-                      This name will be shown to other users when you post templates and comments. It does not need to be your real name, but it should be something you can be identified by.
-                    </Form.Text>
-                  </Form.Group>
+      <Container className="py-5" style={{ maxWidth: '480px' }}>
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029', marginBottom: '1.5rem',
+          }}>
+            {serverError}
+          </div>
+        )}
 
-                  <Form.Group className="form-group">
-                    <Form.Label>Password</Form.Label>
-                    <input
-                      type="password"
-                      {...register('password')}
-                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.password?.message}</div>
-                  </Form.Group>
-                  <Form.Group className="form-group">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <input
-                      type="password"
-                      {...register('confirmPassword')}
-                      className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                    />
-                    <div className="invalid-feedback">{errors.confirmPassword?.message}</div>
-                  </Form.Group>
-                  <Form.Group className="form-group py-3">
-                    <Row>
-                      <Col>
-                        <Button type="submit" className="btn btn-primary">
-                          Register
-                        </Button>
-                      </Col>
-                      <Col>
-                        <Button type="button" onClick={() => reset()} className="btn btn-warning float-right">
-                          Reset
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Form.Group>
-                </Form>
-              </Card.Body>
-              <Card.Footer>
-                Already have an account?
-                <a href="/auth/signin">Sign in</a>
-              </Card.Footer>
-            </Card>
-          </Col>
-        </Row>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">UH Username</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="e.g. john123"
+              {...register('username')}
+              isInvalid={!!errors.username}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.username?.message}</Form.Control.Feedback>
+            <Form.Text className="text-muted">Your UH username, not your full email address.</Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">Master Code</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter the team master code"
+              {...register('masterCode')}
+              isInvalid={!!errors.masterCode}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.masterCode?.message}</Form.Control.Feedback>
+            <Form.Text className="text-muted">Ask your site admin if you don&apos;t have this.</Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="fw-semibold">Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Create a password"
+              {...register('password')}
+              isInvalid={!!errors.password}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
+            <Form.Text className="text-muted">8–32 characters, at least one uppercase letter and one number.</Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-5">
+            <Form.Label className="fw-semibold">Confirm Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Re-enter your password"
+              {...register('confirmPassword')}
+              isInvalid={!!errors.confirmPassword}
+              style={{ borderColor: '#e4ebe7' }}
+            />
+            <Form.Control.Feedback type="invalid">{errors.confirmPassword?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          <Button
+            type="submit"
+            disabled={submitting}
+            style={{ backgroundColor: '#024731', border: 'none', padding: '10px 28px', fontWeight: 600 }}
+          >
+            {submitting ? 'Creating account...' : 'Create Account'}
+          </Button>
+        </Form>
+
+        <p className="mt-4" style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+          Already have an account?{' '}
+          <a href="/auth/signin" style={{ color: '#024731' }}>Sign in</a>
+        </p>
       </Container>
     </main>
   );
