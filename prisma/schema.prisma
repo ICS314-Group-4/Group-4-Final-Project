@@ -46,6 +46,7 @@ model TemplateUsage {
   templateId Int
 
   updatedAt  DateTime @updatedAt
+  
   @@unique([userId, templateId])
 }
 
