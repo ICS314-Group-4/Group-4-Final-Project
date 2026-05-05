@@ -4,10 +4,11 @@ import { useRouter } from 'next/navigation';
 import { Template } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
 
+const ROW_HEIGHT = '64px';
+
 /* Renders a single row in the Browse Templates table. See list/page.tsx. */
 const TemplateItem = ({ template, authorName, commentCount = 0, onTagClick }: { template: Template; authorName?: string; commentCount?: number; onTagClick?: (tag: string) => void }) => {
   const router = useRouter();
-
 
   const tagSearchEvent = (e: React.MouseEvent, tag: string) => {
     e.stopPropagation();
@@ -17,10 +18,10 @@ const TemplateItem = ({ template, authorName, commentCount = 0, onTagClick }: { 
   return (
     <tr
       className="align-middle"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', height: ROW_HEIGHT }}
       onClick={() => router.push(`/view/${template.id}`)}
     >
-      <td style={{ maxWidth: '340px' }}>
+      <td style={{ maxWidth: '340px', overflow: 'hidden' }}>
         <div
           className="fw-semibold"
           style={{
@@ -33,11 +34,19 @@ const TemplateItem = ({ template, authorName, commentCount = 0, onTagClick }: { 
           {template.title}
         </div>
         {template.tags?.length > 0 && (
-          <div className="mt-1 d-flex flex-wrap gap-1">
+          <div
+            className="mt-1 d-flex gap-1"
+            style={{
+              flexWrap: 'nowrap',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+            }}
+          >
             {template.tags.map((tag) => (
               <button
                 key={tag}
                 className="badge fw-normal tag-badge"
+                style={{ flexShrink: 0 }}
                 onClick={(e) => tagSearchEvent(e, tag)}
               >
                 {tag}
@@ -61,32 +70,12 @@ const TemplateItem = ({ template, authorName, commentCount = 0, onTagClick }: { 
       </td>
       <td className="text-muted" style={{ fontSize: '0.85rem' }}>{authorName ?? template.author}</td>
       <td>
-        <span
-          style={{
-            display: 'inline-block',
-            fontSize: '0.78rem',
-            backgroundColor: '#e8f0ec',
-            color: '#024731',
-            padding: '3px 10px',
-            borderRadius: '12px',
-            fontWeight: 500,
-          }}
-        >
+        <span style={{ display: 'inline-block', fontSize: '0.78rem', backgroundColor: '#e8f0ec', color: '#024731', padding: '3px 10px', borderRadius: '12px', fontWeight: 500 }}>
           {template.used ?? 0}×
         </span>
       </td>
       <td>
-        <span
-          style={{
-            display: 'inline-block',
-            fontSize: '0.78rem',
-            backgroundColor: '#e8f0ec',
-            color: '#024731',
-            padding: '3px 10px',
-            borderRadius: '12px',
-            fontWeight: 500,
-          }}
-        >
+        <span style={{ display: 'inline-block', fontSize: '0.78rem', backgroundColor: '#e8f0ec', color: '#024731', padding: '3px 10px', borderRadius: '12px', fontWeight: 500 }}>
           {commentCount}
         </span>
       </td>
