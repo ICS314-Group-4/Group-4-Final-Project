@@ -45,6 +45,7 @@ type Props = {
   isEditor: boolean;
   name: string;
   commentCount: Record<number, number>;
+  emptyMessage?: string;
 };
 
 const pageBtnStyle = (active: boolean): React.CSSProperties => ({
@@ -57,7 +58,7 @@ const pageBtnStyle = (active: boolean): React.CSSProperties => ({
   cursor: 'pointer', padding: '0 8px',
 });
 
-const TemplateFilterUserTemplates = ({ templates, categories, isEditor, name, commentCount }: Props) => {
+const TemplateFilterUserTemplates = ({ templates, categories, isEditor, name, commentCount, emptyMessage }: Props) => {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
@@ -281,7 +282,7 @@ const TemplateFilterUserTemplates = ({ templates, categories, isEditor, name, co
           <p style={{ fontSize: '0.9rem', marginBottom: 0 }}>
             {search || activeCategory !== 'All'
               ? 'Try adjusting your search or filter.'
-              : `${name} hasn't created any templates yet.`}
+              : (emptyMessage ?? `${name} hasn't created any templates yet.`)}
           </p>
         </div>
       )}

@@ -68,6 +68,7 @@ export default async function RecentlyUsedPage() {
           isEditor={false}
           name={session.user.name || "User"}
           commentCount={commentCountMap}
+          emptyMessage="You haven't used any templates yet. Browse the library to find one."
         />
       </Container>
     </main>
