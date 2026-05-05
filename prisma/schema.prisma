@@ -7,13 +7,14 @@ datasource db {
 }
 
 model User {
-    id       Int    @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   email    String @unique
   password String
   role     Role   @default(USER)
   name     String @default("Please add a name on your profile page")
   sign     String @default("")
   usages   TemplateUsage[]
+  savedIds Int[]
 }
 
 model Template {
@@ -26,6 +27,8 @@ model Template {
   used      Int      @default(0)
   usages    TemplateUsage[]
   comments  Comment[]
+  createdAt DateTime  @default(now())
+  modified  DateTime  @default(now())
 }
 
 model Comment {
@@ -34,18 +37,31 @@ model Comment {
   authorEmail String
   authorName  String
   templateId  Int
-  template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+  template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }
 
 model TemplateUsage {
   id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
-  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   templateId Int
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  updatedAt  DateTime @updatedAt
 
   @@unique([userId, templateId])
+}
+
+model SiteConfig {
+  id         Int    @id @default(1)
+  masterCode String @default("")
+}
+
+model WhitelistEntry {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  name     String
 }
 
 enum Role {

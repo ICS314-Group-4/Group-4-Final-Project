@@ -111,47 +111,56 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
     <>
       {/* Search + filters */}
       <div className="mb-4 d-flex flex-column gap-3">
-        <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by title, category, or tag..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ maxWidth: '420px', fontSize: '0.9rem' }}
-            list={search.length > 0 ? "search-tag-suggestions" : undefined}
-          />
-          {search.length > 0 && (
-            <datalist id="search-tag-suggestions">
-              {existingTags
-                .filter(tag => !search.toLowerCase().includes(tag.toLowerCase()))
-                .map(tag => (
-                  <option key={tag} value={tag} />
-                ))}
-            </datalist>
-          )}
-        {search && (
-          <button
-            onClick={() => setSearch('')}
-            style={{
-              position: 'absolute',
-              right: '8px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              fontSize: '1.2rem',
-              cursor: 'pointer',
-              color: '#888',
-              padding: 0,
-              lineHeight: 1,
-            }}
-            aria-label="Clear search"
-          >
-            ×
-          </button>
-        )}
-      </div>
+        <div className="d-flex flex-wrap align-items-center justify-content-between">
+          <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by title, category, or tag..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ maxWidth: '420px', fontSize: '0.9rem' }}
+              list={search.length > 0 ? "search-tag-suggestions" : undefined}
+            />
+            {search.length > 0 && (
+              <datalist id="search-tag-suggestions">
+                {existingTags
+                  .filter(tag => !search.toLowerCase().includes(tag.toLowerCase()))
+                  .map(tag => (
+                    <option key={tag} value={tag} />
+                  ))}
+              </datalist>
+            )}
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer',
+                  color: '#888',
+                  padding: 0,
+                  lineHeight: 1,
+                }}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <a
+              href="/user-templates"
+              className="btn btn-light fw-semibold ms-auto"
+              style={{ backgroundColor: '#024731', fontSize: '0.9rem', color: '#fff' }}
+            >
+              Manage My Templates
+            </a>
+        </div>
         <div className="d-flex flex-wrap gap-2">
           {['All', ...categories].map(cat => (
             <button
