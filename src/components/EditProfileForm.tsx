@@ -94,7 +94,11 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
             />
             <div className="invalid-feedback">{errors.newSig?.message}</div>
             <Form.Text className="text-muted">
-              This signature will be automatically appended to the end of any template you copy. You can use it to add contact information and/or sign-offs.
+              This signature will be appended to the end of any template you copy. You can use it to add contact information and/or sign-offs. If you do not set one, your signature will default to:
+              <br />
+              <br />Thank you,
+              <br />[Name]
+              <br />ITS Help Desk Consultant
             </Form.Text>
             </Form.Group>
 

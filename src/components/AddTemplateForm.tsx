@@ -159,7 +159,7 @@ const AddTemplateForm: React.FC = () => {
             <Form.Label className="fw-semibold">Problem Description / Title</Form.Label>
             <Form.Control
               type="text"
-              placeholder="e.g. Resetting your UH Username password"
+              placeholder="e.g. Password reset procedures"
               {...register('title')}
               isInvalid={!!errors.title}
             />
@@ -184,7 +184,7 @@ const AddTemplateForm: React.FC = () => {
             <Form.Control
               as="textarea"
               rows={10}
-              placeholder={`Aloha,\n\nThank you for contacting the UH ITS Help Desk...\n\n`}
+              placeholder={`Aloha,\n\nThank you for contacting the UH ITS Help Desk...\n\n[signature]`}
               style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
               {...register('template')}
               isInvalid={!!errors.template}
