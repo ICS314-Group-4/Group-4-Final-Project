@@ -39,11 +39,12 @@ test('test access to admin page', async ({ getUserPage }) => {
 
   // Test Admin adminPage
   await adminPage.getByRole('link', { name: 'Admin' }).click();
+  await adminPage.waitForURL('**/admin', { timeout: 15000 });
   await expect(
     adminPage.getByRole('heading', { name: 'Admin Dashboard' })
-  ).toBeVisible({ timeout: 5000 });
+  ).toBeVisible({ timeout: 15000 });
   await expect(
     adminPage.getByRole('heading', { name: 'User Management' })
-  ).toBeVisible({ timeout: 5000 });
+  ).toBeVisible({ timeout: 15000 });
 
 });

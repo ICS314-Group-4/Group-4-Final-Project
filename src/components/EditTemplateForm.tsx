@@ -27,6 +27,7 @@ const categoryMapping: Record<string, string> = {
 const EditTemplateForm = ({ template }: { template: Template }) => {
   const [tags, setTags] = useState<string[]>(template.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [serverError, setServerError] = useState('');
 
   const router = useRouter();
   
@@ -49,22 +50,15 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
 }, [tags, setValue]);
 
   const onSubmit = async (data: Template) => {
-  // console.log(`onSubmit data: ${JSON.stringify(data, null, 2)}`);
-  try { 
-  await editTemplate(data);
-  await swal({
-      title: "Success!",
-      text: "Your template has been updated",
-      icon: "success",
-      timer: 2000,
-      buttons: [false],
-    });
-    router.push('/list'); 
-  } catch (error) {
-    console.error(error);
-    swal("Error", "Something went wrong.", "error");
-  }
-};
+    setServerError('');
+    const result = await editTemplate(data);
+    if ('error' in result) {
+      setServerError(result.error);
+      return;
+    }
+    await swal({ title: 'Success!', text: 'Your template has been updated', icon: 'success', timer: 2000, buttons: [false] });
+    router.push('/list');
+  };
   
     const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' || e.key === ',') {
@@ -102,6 +96,16 @@ const EditTemplateForm = ({ template }: { template: Template }) => {
     <Container className="py-3">
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={6}>
+          {serverError && (
+            <div style={{
+              backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+              borderRadius: '0.375rem', padding: '10px 16px',
+              fontSize: '0.875rem', color: '#842029',
+              marginBottom: '1rem', fontWeight: 500,
+            }}>
+              {serverError}
+            </div>
+          )}
           <Card>
             <Card.Body>
               <Form onSubmit={handleSubmit(onSubmit)}>

@@ -16,7 +16,7 @@ const Home = async () => {
     prisma.template.findMany({ orderBy: { used: 'desc' }, take: 5 }),
   ]);
 
-  const userName = currentUser?.name ?? currentUserEmail;
+  const userName = currentUser?.name ?? 'there';
   const categoryCounts: Record<string, number> = Object.fromEntries(
     categoryCountsRaw.map(r => [r.category, r._count.id]),
   );
