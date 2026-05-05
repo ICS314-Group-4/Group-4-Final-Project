@@ -81,6 +81,9 @@ const NavBar: React.FC = () => {
                 >
                   Add Template
                 </Nav.Link>
+                <Nav.Link id="my-templates" href="/user-templates" active={pathName === '/user-templates'}>
+                  My Templates
+                </Nav.Link>
               </>
             )}
             {currentUser && role === 'ADMIN' && (

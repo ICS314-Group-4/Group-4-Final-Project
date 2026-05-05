@@ -16,9 +16,10 @@ type Props = {
   currentUserName: string;
   currentUserSign: string;
   isAdmin: boolean;
+  authorId: number;
 };
 
-export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin }: Props) {
+export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [usedCount, setUsedCount] = useState(item.used ?? 0);
@@ -80,7 +81,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
           <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.875rem' }}>
-            By {item.author}
+            By <a href={`/user-templates?id=${authorId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.author}</a>
           </p>
         </Container>
       </div>

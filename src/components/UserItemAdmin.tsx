@@ -19,7 +19,7 @@ const UserItemAdmin = ({ user }: Props) => {
   <tr
       className="align-middle"
       style={{ cursor: 'pointer' }}
-      onClick={() => { window.location.href = `/viewadmin/${user.id}`; }}
+      onClick={() => { window.location.href = `/user-templates/?id=${user.id}`; }}
     >
       <td style={{ maxWidth: '340px', height: '56px' }}>
         <div

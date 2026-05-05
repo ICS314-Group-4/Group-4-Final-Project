@@ -4,6 +4,7 @@ import { loggedInProtectedPage } from '@/lib/page-protection';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import EditTemplateForm from '@/components/EditTemplateForm';
+import { redirect } from 'next/navigation';
 
 export default async function EditTemplatePage({ params }: { params: { id: string | string[] } }) {
   const { id } = await params;
@@ -22,6 +23,9 @@ export default async function EditTemplatePage({ params }: { params: { id: strin
   });
   if (!template) {
     return notFound();
+  }
+  if (template.author !== session?.user?.email && session?.user?.role !== 'ADMIN') {
+    redirect('/not-authorized');
   }
 
   return (

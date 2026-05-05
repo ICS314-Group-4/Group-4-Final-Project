@@ -139,6 +139,7 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
     <>
       {/* Search + filters */}
       <div className="mb-4 d-flex flex-column gap-3">
+        <div className="d-flex flex-wrap align-items-center justify-content-between">
         <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
           <input
             type="text"
@@ -170,6 +171,14 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
             </button>
           )}
         </div>
+        <a
+              href="/user-templates"
+              className="btn btn-light fw-semibold ms-auto"
+              style={{ backgroundColor: '#024731', fontSize: '0.9rem', color: '#fff' }}
+            >
+              Manage My Templates
+            </a>
+        </div> 
         <div className="d-flex flex-wrap gap-2">
           {['All', ...categories].map(cat => (
             <button
