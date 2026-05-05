@@ -1,13 +1,13 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import TemplateItem from "@/components/TemplateItem"; 
 import { Container } from "react-bootstrap";
+import TemplateFilterUserTemplates from "@/components/TemplateFilterUserTemplates";
 
 export default async function RecentlyUsedPage() {
   const session = await auth();
 
-  if (!session?.user?.id) {
+  if (!session?.user) {
     redirect("/login");
   }
 
@@ -29,17 +29,26 @@ export default async function RecentlyUsedPage() {
     },
   });
 
+  const templates = recentUsages.map((u) => u.template);
+  
+  const commentCountMap: Record<number, number> = {};
+  templates.forEach(t => {
+    commentCountMap[t.id] = t._count?.comments ?? 0;
+  });
+
+  const categories = Array.from(new Set(templates.map((t) => t.category)));
+
   return (
     <main>
-    {/* Header */}
+      {/* Header - Consistent with your style */}
       <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
         <Container>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h1 className="fw-bold mb-1">Recently Used Templates</h1>
-              <span className="badge rounded-pill bg-light text-dark border">
-                {recentUsages.length} Template{recentUsages.length !== 1 ? 's' : ''}
-              </span>
+              <p className="mb-0" style={{ opacity: 0.85, fontSize: '0.95rem' }}>
+                Quickly access the responses you use most often.
+              </p>
             </div>
             <a
               href="/add"
@@ -52,39 +61,15 @@ export default async function RecentlyUsedPage() {
         </Container>
       </div>
 
-    <div className="container py-4">
-      <div className="table-responsive bg-white rounded shadow-sm">
-        <table className="table table-hover mb-0">
-          <thead className="table-light">
-            <tr>
-              <th>Template</th>
-              <th>Category</th>
-              <th>Author</th>
-              <th>Used</th>
-              <th>Comments</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentUsages.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-5 text-muted">
-                  No recently used templates found.
-                </td>
-              </tr>
-            ) : (
-              recentUsages.map((usage) => (
-                <TemplateItem 
-                  key={usage.id} 
-                  template={usage.template} 
-                  commentCount={usage.template._count?.comments ?? 0}
-                  authorName={usage.template.author}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
+      <Container className="py-4">
+        <TemplateFilterUserTemplates 
+          templates={templates} 
+          categories={categories}
+          isEditor={true}
+          name={session.user.name || "User"}
+          commentCount={commentCountMap}
+        />
+      </Container>
+    </main>
   );
 }

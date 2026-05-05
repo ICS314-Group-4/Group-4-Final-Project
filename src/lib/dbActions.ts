@@ -5,6 +5,8 @@ import { Template } from '@prisma/client';
 import { hash, compare } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
+import { auth } from './auth';
+import { revalidatePath } from 'next/cache';
 
 const categoryMap: Record<string, Category> = {
   'Google Core/Consumer Apps': Category.GOOGLE_APPS,
@@ -16,6 +18,10 @@ const categoryMap: Record<string, Category> = {
   'General Support': Category.GENERAL_SUPPORT,
   'Site License': Category.SITE_LICENSE,
 };
+
+const reverseCategoryMap = Object.fromEntries(
+  Object.entries(categoryMap).map(([label, value]) => [value, label])
+);
 
 /**
  * Creates a new contact in the database.
@@ -46,25 +52,76 @@ export async function addTemplate(
 }
 
 export async function editTemplate(template: Template): Promise<{ error: string } | { success: true }> {
-  const validatedCategory = categoryMap[template.category] || template.category;
+  const session = await auth();
+  
   try {
-    await prisma.template.update({
+    const oldVersion = await prisma.template.findUnique({
       where: { id: template.id },
-      data: {
-        title: template.title,
-        template: template.template,
-        category: validatedCategory,
-        tags: template.tags,
-        author: template.author,
-        used: template.used,
-      },
     });
+
+    if (!oldVersion) return { error: "Template not found." };
+
+    const changes: string[] = [];
+    if (oldVersion.title !== template.title) {
+      changes.push(`Title changed from "${oldVersion.title}" to "${template.title}"`);
+    }
+    if (oldVersion.template !== template.template) {
+      changes.push(`Template body was updated`);
+    }
+    if (oldVersion.category !== template.category) {
+    const oldLabel = reverseCategoryMap[oldVersion.category] || oldVersion.category;
+    const newLabel = reverseCategoryMap[template.category] || template.category;
+    
+    changes.push(`Category moved from ${oldLabel} to ${newLabel}`);
+
+    const oldTags = oldVersion.tags || [];
+    const newTags = template.tags || [];
+
+    const addedTags = newTags.filter(tag => !oldTags.includes(tag));
+    const removedTags = oldTags.filter(tag => !newTags.includes(tag));
+
+    if (addedTags.length > 0 || removedTags.length > 0) {
+      const tagChanges: string[] = [];
+    if (addedTags.length > 0) tagChanges.push(`added [${addedTags.join(', ')}]`);
+    if (removedTags.length > 0) tagChanges.push(`removed [${removedTags.join(', ')}]`);
+    
+    changes.push(`Tags updated: ${tagChanges.join(' and ')}`);
+    }
+  }
+
+    const revisionText = changes.length > 0 
+      ? `Revised: ${changes.join('; ')}.`
+      : "The template was revised (no metadata changes).";
+
+    await prisma.$transaction(async (tx) => {
+      await tx.template.update({
+        where: { id: template.id },
+        data: {
+          title: template.title,
+          template: template.template,
+          category: template.category,
+          tags: template.tags,
+          modified: new Date(),
+        },
+      });
+
+      await tx.comment.create({
+        data: {
+          body: revisionText,
+          authorEmail: session?.user?.email || "System",
+          authorName: session?.user?.name || "System",
+          templateId: template.id,
+        },
+      });
+    });
+
+    revalidatePath(`/template/${template.id}`);
     return { success: true };
   } catch (e: unknown) {
     if ((e as { code?: string }).code === 'P2002') {
-      return { error: 'A template with this title already exists. Please choose a different title.' };
+      return { error: 'A template with this title already exists.' };
     }
-    throw e;
+    return { error: 'An unexpected error occurred.' };
   }
 }
 

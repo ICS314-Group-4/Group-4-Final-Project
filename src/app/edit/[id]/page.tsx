@@ -17,9 +17,8 @@ export default async function EditTemplatePage({ params }: { params: { id: strin
   );
   const editID: number = +id;
   const template: Template | null = await prisma.template.findUnique({
-    where: {
-      id: editID,
-    },
+    where: { id: editID },
+    include: { comments: true },
   });
   if (!template) {
     return notFound();
