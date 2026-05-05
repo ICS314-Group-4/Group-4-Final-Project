@@ -6,10 +6,10 @@ import { deleteTemplate } from '@/lib/dbActions';
 const TemplateItemAdmin = ({ template }: { template: Template }) => (
   <tr
       className="align-middle"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', height: '64px' }}
       onClick={() => { window.location.href = `/viewadmin/${template.id}`; }}
     >
-      <td style={{ maxWidth: '340px' }}>
+      <td style={{ maxWidth: '340px', overflow: 'hidden' }}>
         <div
           className="fw-semibold"
           style={{
@@ -22,12 +22,15 @@ const TemplateItemAdmin = ({ template }: { template: Template }) => (
           {template.title}
         </div>
         {template.tags?.length > 0 && (
-          <div className="mt-1 d-flex flex-wrap gap-1">
+          <div
+            className="mt-1 d-flex gap-1"
+            style={{ flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none' }}
+          >
             {template.tags.map((tag) => (
               <span
                 key={tag}
                 className="badge fw-normal"
-                style={{ backgroundColor: '#024731', fontSize: '0.7rem' }}
+                style={{ backgroundColor: '#024731', fontSize: '0.7rem', flexShrink: 0 }}
               >
                 {tag}
               </span>

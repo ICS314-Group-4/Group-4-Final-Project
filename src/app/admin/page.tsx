@@ -1,4 +1,5 @@
 import { Col, Container, Row } from 'react-bootstrap';
+import { Category } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import TemplateFilterAdmin from '@/components/TemplateFilterAdmin';
 import { adminProtectedPage } from '@/lib/page-protection';
@@ -23,7 +24,7 @@ const AdminPage = async () => {
     getWhitelist().catch(() => []),
   ]);
 
-  const categories = [...new Set(templates.map(t => t.category))].filter(Boolean);
+  const categories = Object.values(Category);
   const roles = [...new Set(users.map(u => u.role))].filter(Boolean);
   const registeredSet = new Set(users.map(u => u.email));
   const pendingWhitelist = whitelist.filter(e => !registeredSet.has(e.username));
