@@ -1,4 +1,4 @@
-import { deleteUser } from '@/lib/dbActions';
+'use client';
 
 export interface UserSummary {
   id: number;
@@ -9,14 +9,15 @@ export interface UserSummary {
 
 type Props = {
   user: UserSummary;
+  onDelete: (id: number, name: string) => Promise<void>;
 };
 
-/* Renders a single row in the List User table. See list/page.tsx. */
-const UserItemAdmin = ({ user }: Props) => {
+/* Renders a single row in the admin user list. */
+const UserItemAdmin = ({ user, onDelete }: Props) => {
   const isAdmin = user.role?.toUpperCase() === 'ADMIN';
 
   return (
-  <tr
+    <tr
       className="align-middle"
       style={{ cursor: 'pointer' }}
       onClick={() => { window.location.href = `/user-templates/?id=${user.id}`; }}
@@ -37,8 +38,8 @@ const UserItemAdmin = ({ user }: Props) => {
       <td className="text-muted" style={{ fontSize: '0.85rem', height: '56px' }}>{user.email}</td>
       <td className="text-muted" style={{ fontSize: '0.85rem', height: '56px' }}>{user.role}</td>
       <td className="text-end" style={{ fontSize: '0.85rem', height: '56px' }} onClick={(e) => e.stopPropagation()}>
-      <div className="d-flex justify-content-end gap-2">
-        <button
+        <div className="d-flex justify-content-end gap-2">
+          <button
             className="btn btn-sm btn-outline-primary"
             style={{ fontSize: '0.75rem' }}
             onClick={(e) => {
@@ -55,16 +56,17 @@ const UserItemAdmin = ({ user }: Props) => {
               onClick={async (e) => {
                 e.stopPropagation();
                 if (confirm(`Delete "${user.name}"?`)) {
-                  await deleteUser(user.id);
+                  await onDelete(user.id, user.name);
                 }
               }}
             >
               Delete
             </button>
           )}
-      </div>
-    </td>
+        </div>
+      </td>
     </tr>
-)};
+  );
+};
 
 export default UserItemAdmin;

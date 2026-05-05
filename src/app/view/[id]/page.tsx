@@ -24,18 +24,18 @@ export default async function ViewTemplatePage({ params }: { params: { id: strin
 
   const comments: Comment[] = await prisma.comment.findMany({
     where: { templateId: viewID },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
   });
 
   const currentUserEmail = session?.user?.email ?? '';
   const currentUser = await prisma.user.findUnique({ where: { email: currentUserEmail } });
-  const currentUserName = currentUser?.name ?? currentUserEmail;
   const currentUserSign = currentUser?.sign ?? '';
   const isAdmin = currentUser?.role === 'ADMIN';
-  const authorId = await prisma.user.findUnique({
-      where: { email: item.author },
-      select: { id: true },
-    });
+  const authorRecord = await prisma.user.findUnique({
+    where: { email: item.author },
+    select: { id: true },
+  });
+  const authorId = authorRecord?.id ?? null;
 
 
   return (
@@ -44,10 +44,9 @@ export default async function ViewTemplatePage({ params }: { params: { id: strin
         item={item}
         comments={comments}
         currentUserEmail={currentUserEmail}
-        currentUserName={currentUserName}
         currentUserSign={currentUserSign}
         isAdmin={isAdmin}
-        authorId={Number(authorId?.id)}
+        authorId={authorId}
       />
     </main>
   );

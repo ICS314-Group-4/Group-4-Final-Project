@@ -23,7 +23,7 @@ const categoryOptions = [
 
 const AddTemplateForm: React.FC = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [published, setPublished] = useState(false);
@@ -49,8 +49,6 @@ const AddTemplateForm: React.FC = () => {
 
   if (status === 'loading') return <LoadingSpinner />;
   if (status === 'unauthenticated') redirect('/auth/signin');
-
-  const currentUser = session?.user?.email || '';
 
   const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
@@ -94,9 +92,7 @@ const AddTemplateForm: React.FC = () => {
       title: data.title,
       template: data.template,
       category: data.category,
-      author: currentUser,
       tags: (data.tags ?? []).filter((t): t is string => !!t),
-      used: 0,
     });
     if ('error' in result) {
       setServerError(result.error);

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Table } from 'react-bootstrap';
 import { Category, Template } from '@prisma/client';
 import TemplateItemAdmin from './TemplateItemAdmin';
 import { categoryLabels } from '@/lib/categoryLabels';
+import { deleteTemplate } from '@/lib/dbActions';
 
 const PAGE_SIZE = 20;
 
@@ -24,9 +26,23 @@ const pageBtnStyle = (active: boolean): React.CSSProperties => ({
 });
 
 const TemplateFilterAdmin = ({ templates, categories }: Props) => {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [toast, setToast] = useState<{ message: string; error?: boolean } | null>(null);
+
+  const showToast = (message: string, error = false) => {
+    setToast({ message, error });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleDelete = async (id: number, title: string) => {
+    const result = await deleteTemplate(id);
+    if ('error' in result) { showToast(result.error, true); return; }
+    router.refresh();
+    showToast(`"${title}" deleted`);
+  };
 
   const filtered = templates.filter(t => {
     const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
@@ -53,6 +69,19 @@ const TemplateFilterAdmin = ({ templates, categories }: Props) => {
 
   return (
     <>
+      {/* Toast notification */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '20px', right: '20px', zIndex: 9999,
+          backgroundColor: toast.error ? '#842029' : '#024731', color: '#fff',
+          padding: '12px 20px', borderRadius: '0.5rem',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          fontSize: '0.9rem', fontWeight: 500,
+        }}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Search + filters */}
       <div className="mb-4 d-flex flex-column gap-3">
         <input
@@ -102,7 +131,7 @@ const TemplateFilterAdmin = ({ templates, categories }: Props) => {
             </thead>
             <tbody>
               {paginated.map(t => (
-                <TemplateItemAdmin key={t.id} template={t} />
+                <TemplateItemAdmin key={t.id} template={t} onDelete={handleDelete} />
               ))}
             </tbody>
           </Table>

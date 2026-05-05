@@ -20,6 +20,7 @@ const validationSchema = Yup.object().shape({
 
 const EditProfileForm = ({ email, name, signature }: { email: string; name: string; signature: string }) => {
   const [saved, setSaved] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const {
     register,
@@ -32,7 +33,9 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
   });
 
   const onSubmit = async (data: EditProfileForm) => {
-    await editProfile({ email, ...data });
+    setServerError('');
+    const result = await editProfile({ email, ...data });
+    if ('error' in result) { setServerError(result.error); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -47,6 +50,16 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
       </div>
       {/* Body */}
       <Container className="py-5" style={{ maxWidth: '760px' }}>
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            {serverError}
+          </div>
+        )}
         {saved && (
           <div style={{
             backgroundColor: '#e8f0ec', border: '1px solid #c8d8d0',

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Container, Button, Form } from 'react-bootstrap';
 import { Template, Comment } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
-import { addComment, deleteComment } from '@/lib/dbActions';
+import { addComment, deleteComment, deleteTemplate } from '@/lib/dbActions';
 
 const MAX_COMMENT_LENGTH = 1000;
 
@@ -13,13 +13,12 @@ type Props = {
   item: Template;
   comments: Comment[];
   currentUserEmail: string;
-  currentUserName: string;
   currentUserSign: string;
   isAdmin: boolean;
-  authorId: number;
+  authorId: number | null;
 };
 
-export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId }: Props) {
+export default function ViewTemplate({ item, comments, currentUserEmail, currentUserSign, isAdmin, authorId }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [usedCount, setUsedCount] = useState(item.used ?? 0);
@@ -53,22 +52,28 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
     const trimmed = commentBody.trim();
     if (!trimmed || trimmed.length > MAX_COMMENT_LENGTH) return;
     setSubmitting(true);
-    await addComment({
-      body: trimmed,
-      authorEmail: currentUserEmail,
-      authorName: currentUserName,
-      templateId: item.id,
-    });
-    setCommentBody('');
+    const result = await addComment({ body: trimmed, templateId: item.id });
     setSubmitting(false);
+    if ('error' in result) return;
+    setCommentBody('');
     setPosted(true);
     setTimeout(() => setPosted(false), 3000);
     router.refresh();
   };
 
   const handleDeleteComment = async (commentId: number) => {
-    await deleteComment(commentId, currentUserEmail);
+    await deleteComment(commentId);
     router.refresh();
+  };
+
+  const isOwner = item.author === currentUserEmail;
+  const canEdit = isOwner || isAdmin;
+
+  const handleDelete = async () => {
+    if (!confirm(`Delete "${item.title}"?`)) return;
+    const result = await deleteTemplate(item.id);
+    if ('error' in result) { alert(result.error); return; }
+    router.push('/list');
   };
 
   return (
@@ -81,7 +86,10 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
           <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.875rem' }}>
-            By <a href={`/user-templates?id=${authorId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.author}</a>
+            By {authorId
+              ? <a href={`/user-templates?id=${authorId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.author}</a>
+              : <span>{item.author}</span>
+            }
           </p>
         </Container>
       </div>
@@ -95,7 +103,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
             <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6c757d' }}>Times Used</div>
           </div>
           <div>
-            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{comments.length}</div>
+            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{comments.filter(c => !c.isRevision).length}</div>
             <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6c757d' }}>Comments</div>
           </div>
         </div>
@@ -103,17 +111,37 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
         {/* Email body */}
         <div className="mb-2 d-flex justify-content-between align-items-center">
           <span className="fw-semibold">Email Template</span>
-          <Button
-            size="sm"
-            onClick={handleCopy}
-            style={{
-              backgroundColor: copied ? '#6c757d' : '#024731',
-              border: 'none',
-              minWidth: '90px',
-            }}
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </Button>
+          <div className="d-flex gap-2">
+            {canEdit && (
+              <>
+                <a
+                  href={`/edit/${item.id}`}
+                  className="btn btn-sm btn-outline-primary"
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  Edit
+                </a>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  style={{ fontSize: '0.8rem' }}
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              </>
+            )}
+            <Button
+              size="sm"
+              onClick={handleCopy}
+              style={{
+                backgroundColor: copied ? '#6c757d' : '#024731',
+                border: 'none',
+                minWidth: '90px',
+              }}
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </Button>
+          </div>
         </div>
         <div
           className="p-4 mb-5"
@@ -143,33 +171,54 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           </div>
         )}
 
-        {/* Comments */}
+        {/* Activity feed — comments and revisions interleaved by time */}
         <div style={{ borderTop: '1.5px solid #212529' }} className="pt-4">
-          <h5 className="fw-bold mb-4">Comments</h5>
+          <h5 className="fw-bold mb-4">
+            Comments
+            {comments.filter(c => !c.isRevision).length === 0 && (
+              <span className="fw-normal text-muted" style={{ fontSize: '0.9rem', marginLeft: '8px' }}>
+                — no comments yet
+              </span>
+            )}
+          </h5>
 
-          {/* Post success toast */}
           {posted && (
-            <div
-              style={{
-                backgroundColor: '#e8f0ec',
-                color: '#024731',
-                border: '1px solid #c8d8d0',
-                borderRadius: '0.375rem',
-                padding: '10px 16px',
-                fontSize: '0.875rem',
-                marginBottom: '1rem',
-                fontWeight: 500,
-              }}
-            >
+            <div style={{
+              backgroundColor: '#e8f0ec', color: '#024731',
+              border: '1px solid #c8d8d0', borderRadius: '0.375rem',
+              padding: '10px 16px', fontSize: '0.875rem',
+              marginBottom: '1rem', fontWeight: 500,
+            }}>
               Comment posted.
             </div>
           )}
 
-          {comments.length === 0 && (
-            <p style={{ fontSize: '0.95rem', color: '#6c757d' }}>No comments yet. Be the first to leave one.</p>
-          )}
-
           {comments.map(c => {
+            if (c.isRevision) {
+              return (
+                <div
+                  key={c.id}
+                  className="mb-3"
+                  style={{
+                    backgroundColor: '#f4f7f5',
+                    border: '1px solid #e4ebe7',
+                    borderLeft: '3px solid #a8c5b5',
+                    borderRadius: '0 0.375rem 0.375rem 0',
+                    padding: '7px 12px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#6c757d' }}>
+                    <span style={{ color: '#024731', fontSize: '0.8rem' }}>✎</span>
+                    <span style={{ fontWeight: 600, color: '#495057' }}>{c.authorName}</span>
+                    <span>revised</span>
+                    <span>·</span>
+                    <span>{new Date(c.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#6c757d', marginBottom: 0, marginTop: '3px' }}>{c.body}</p>
+                </div>
+              );
+            }
+
             const isOwn = c.authorEmail === currentUserEmail;
             return (
               <div
@@ -195,16 +244,13 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
                       </span>
                     )}
                     <span style={{ fontSize: '0.8rem', color: '#6c757d' }}>
-                      {new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(c.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                     </span>
                   </div>
                   {(isOwn || isAdmin) && (
                     <button
                       onClick={() => handleDeleteComment(c.id)}
-                      style={{
-                        background: 'none', border: 'none', color: '#adb5bd',
-                        fontSize: '0.8rem', cursor: 'pointer', padding: 0,
-                      }}
+                      style={{ background: 'none', border: 'none', color: '#adb5bd', fontSize: '0.8rem', cursor: 'pointer', padding: 0 }}
                     >
                       Delete
                     </button>

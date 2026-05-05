@@ -1,229 +1,295 @@
 'use client';
 
-import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
-import swal from 'sweetalert';
+import { useState, useEffect } from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Template } from '@prisma/client';
+import * as Yup from 'yup';
+import { Category, Template } from '@prisma/client';
 import { EditTemplateSchema } from '@/lib/validationSchemas';
 import { editTemplate } from '@/lib/dbActions';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';  
-import { useEffect } from 'react';
+import { categoryLabels } from '@/lib/categoryLabels';
+import { useRouter } from 'next/navigation';
 
-
-const categoryMapping: Record<string, string> = {
-  'GOOGLE_APPS': 'Google Core/Consumer Apps',
-  'STAR_BANNER': 'STAR/Banner',
-  'UH_ACCOUNT': 'UH Account',
-  'DUO_MOBILE_MFA': 'Duo Mobile/MFA',
-  'LAMAKU_LAULIMA': 'Lamaku/Laulima LMS',
-  'NETWORK_PRINTING': 'Network/Printing',
-  'GENERAL_SUPPORT': 'General Support',
-  'SITE_LICENSE': 'Site License',
-};
-
+type EditFormValues = Yup.InferType<typeof EditTemplateSchema>;
 
 const EditTemplateForm = ({ template }: { template: Template }) => {
+  const router = useRouter();
   const [tags, setTags] = useState<string[]>(template.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [existingTags, setExistingTags] = useState<string[]>([]);
   const [serverError, setServerError] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [toastFading, setToastFading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
-  const router = useRouter();
-  
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<Template>({
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm<EditFormValues>({
     resolver: yupResolver(EditTemplateSchema),
     defaultValues: {
-      ...template,
+      id: template.id,
+      title: template.title,
+      template: template.template,
       category: template.category,
+      tags: template.tags,
+      author: template.author,
+      used: template.used,
     },
   });
 
-  useEffect(() => {
-  setValue('tags', tags);
-}, [tags, setValue]);
+  const watchTitle = useWatch({ control, name: 'title' });
+  const watchTemplate = useWatch({ control, name: 'template' });
+  const watchCategory = useWatch({ control, name: 'category' }) as Category;
 
-  const onSubmit = async (data: Template) => {
+  useEffect(() => {
+    setValue('tags', tags);
+  }, [tags, setValue]);
+
+  useEffect(() => {
+    fetch('/api/tags')
+      .then(res => res.json())
+      .then(data => setExistingTags(data))
+      .catch(err => console.error('Failed to load tag suggestions', err));
+  }, []);
+
+  const addTag = (raw: string) => {
+    const val = raw.trim().toLowerCase();
+    if (val && !tags.includes(val)) {
+      setTags(prev => [...prev, val]);
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => setTags(prev => prev.filter(t => t !== tag));
+
+  const tagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInput);
+    } else if ((e.key === 'Backspace' || e.key === 'Delete') && tagInput === '' && tags.length > 0) {
+      e.preventDefault();
+      removeTag(tags[tags.length - 1]);
+    }
+  };
+
+  const handleReset = () => {
+    reset({
+      id: template.id,
+      title: template.title,
+      template: template.template,
+      category: template.category,
+      tags: template.tags,
+      author: template.author,
+      used: template.used,
+    });
+    setTags(template.tags || []);
+    setTagInput('');
+    setShowPreview(false);
+  };
+
+  const onSubmit = async (data: EditFormValues) => {
     setServerError('');
-    const result = await editTemplate(data);
+    const result = await editTemplate({ ...template, ...data } as Template);
     if ('error' in result) {
       setServerError(result.error);
       return;
     }
-    await swal({ title: 'Success!', text: 'Your template has been updated', icon: 'success', timer: 2000, buttons: [false] });
-    router.push('/list');
+    setSaved(true);
+    setToastFading(false);
+    setTimeout(() => setToastFading(true), 3500);
+    setTimeout(() => router.push(`/view/${template.id}`), 5000);
   };
-  
-    const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' || e.key === ',') {
-        e.preventDefault();
-        const val = tagInput.trim().toLowerCase();
-        if (val && !tags.includes(val)) {
-          setTags([...tags, val]);
-        }
-        setTagInput('');
-      }
-    };
-  
-   const removeTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
-  };
-
-  const handleReset = () => {
-  reset();            // Clears title, template, category, etc.
-  setTags(template.tags || []);        // Clears your local tags state
-  setTagInput('');    // Clears the input field
-};
 
   return (
     <main>
-    {/* Header */}
+      {/* Header */}
       <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
         <Container>
           <h1 className="fw-bold mb-1">Edit Template</h1>
           <p className="mb-0" style={{ opacity: 0.85, fontSize: '0.95rem' }}>
-            Share a response that worked — the whole team can find and use it.
+            Update the response and save — changes are visible to the whole team.
           </p>
         </Container>
       </div>
-      
-    <Container className="py-3">
-      <Row className="justify-content-center">
-        <Col xs={12} md={8} lg={6}>
-          {serverError && (
-            <div style={{
-              backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
-              borderRadius: '0.375rem', padding: '10px 16px',
-              fontSize: '0.875rem', color: '#842029',
-              marginBottom: '1rem', fontWeight: 500,
-            }}>
-              {serverError}
+
+      {/* Toast */}
+      {saved && (
+        <div style={{
+          position: 'fixed',
+          top: '1.25rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          backgroundColor: '#024731',
+          color: '#fff',
+          padding: '12px 28px',
+          borderRadius: '999px',
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+          opacity: toastFading ? 0 : 1,
+          transition: 'opacity 1.2s ease',
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+        }}>
+          Template saved! Taking you there now...
+        </div>
+      )}
+
+      <Container className="py-5" style={{ maxWidth: '760px' }}>
+        {/* Hidden fields */}
+        <input type="hidden" {...register('id')} />
+        <input type="hidden" {...register('author')} />
+        <input type="hidden" {...register('used')} />
+
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            {serverError}
+          </div>
+        )}
+
+        <Form onSubmit={handleSubmit(onSubmit)}>
+
+          {/* Title */}
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">Problem Description / Title</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="e.g. Resetting your UH Username password"
+              {...register('title')}
+              isInvalid={!!errors.title}
+            />
+            <Form.Control.Feedback type="invalid">{errors.title?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          {/* Category */}
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">Category</Form.Label>
+            <Form.Select {...register('category')} isInvalid={!!errors.category}>
+              <option value="">Select a category...</option>
+              {Object.entries(categoryLabels).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          {/* Email Body */}
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold">Email Body</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={10}
+              style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
+              {...register('template')}
+              isInvalid={!!errors.template}
+            />
+            <Form.Control.Feedback type="invalid">{errors.template?.message}</Form.Control.Feedback>
+            <Form.Text className="text-muted">
+              Include [signature] at the end of the email body.
+            </Form.Text>
+          </Form.Group>
+
+          {/* Tags */}
+          <Form.Group className="mb-5">
+            <Form.Label className="fw-semibold">
+              Tags <span className="text-muted fw-normal">(optional — press Enter to add, Backspace to remove)</span>
+            </Form.Label>
+            <div
+              className="d-flex flex-wrap gap-2 align-items-center p-2"
+              style={{ border: '1px solid #e4ebe7', borderRadius: '0.375rem', minHeight: '44px' }}
+            >
+              {tags.map(tag => (
+                <span
+                  key={tag}
+                  className="badge d-flex align-items-center gap-1"
+                  style={{ backgroundColor: '#024731', fontSize: '0.8rem', fontWeight: 500 }}
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    style={{ background: 'none', border: 'none', color: '#fff', padding: '0 2px', cursor: 'pointer', lineHeight: 1 }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <datalist id="edit-tag-suggestions">
+                {existingTags.filter(tag => !tags.includes(tag)).map(tag => (
+                  <option key={tag} value={tag} />
+                ))}
+              </datalist>
+              <input
+                type="text"
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={tagKeyDown}
+                list={tagInput.length > 0 ? 'edit-tag-suggestions' : undefined}
+                placeholder={tags.length === 0 ? 'e.g. password, reset, uh-username' : ''}
+                style={{ border: 'none', outline: 'none', flexGrow: 1, minWidth: '120px', fontSize: '0.9rem' }}
+              />
+            </div>
+          </Form.Group>
+
+          {/* Preview toggle */}
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => setShowPreview(p => !p)}
+            >
+              {showPreview ? 'Hide Preview' : 'Preview'}
+            </Button>
+          </div>
+
+          {/* Live preview */}
+          {showPreview && (
+            <div className="mb-4" style={{ border: '1px solid #e4ebe7', borderRadius: '0.375rem', overflow: 'hidden' }}>
+              <div style={{ backgroundColor: '#024731', color: '#fff', padding: '16px 24px' }}>
+                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.7, letterSpacing: '0.1em', marginBottom: '4px' }}>
+                  {watchCategory ? categoryLabels[watchCategory as Category] : 'No category selected'}
+                </div>
+                <div className="fw-bold" style={{ fontSize: '1.1rem' }}>
+                  {watchTitle || 'No title yet'}
+                </div>
+              </div>
+              <div style={{ padding: '20px 24px', backgroundColor: '#f4f7f5' }}>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.9rem', marginBottom: 0, color: watchTemplate ? '#212529' : '#aaa' }}>
+                  {watchTemplate || 'Email body will appear here...'}
+                </pre>
+              </div>
+              {tags.length > 0 && (
+                <div className="d-flex flex-wrap gap-1 px-4 py-3" style={{ borderTop: '1px solid #dee2e6' }}>
+                  {tags.map(tag => (
+                    <span key={tag} className="badge fw-normal" style={{ backgroundColor: '#024731', fontSize: '0.75rem' }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          <Card>
-            <Card.Body>
-              <Form onSubmit={handleSubmit(onSubmit)}>
-                
-                <input type="hidden" {...register('id')} />
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Problem Description / Title</Form.Label>
-                  <Form.Control
-                    type="text"
-                    {...register('title')}
-                    isInvalid={!!errors.title}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.title?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Template Content</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    {...register('template')}
-                    isInvalid={!!errors.template}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.template?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Category</Form.Label>
-                  <Form.Select
-                    {...register('category')}
-                    isInvalid={!!errors.category}
-                  >
-                    <option value="">Select a category...</option>
-                    {Object.entries(categoryMapping).map(([key, label]) => (
-                      <option key={key} value={key}>
-                        {label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">
-                    {errors.category?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-5">
-                            <Form.Label className="fw-semibold">
-                              Tags <span className="text-muted fw-normal">(optional — press Enter to add)</span>
-                            </Form.Label>
-                            <div
-                              className="d-flex flex-wrap gap-2 align-items-center p-2"
-                              style={{ border: '1px solid #dee2e6', borderRadius: '0.375rem', minHeight: '44px' }}
-                            >
-                              {tags.map(tag => (
-                                <span
-                                  key={tag}
-                                  className="badge d-flex align-items-center gap-1"
-                                  style={{ backgroundColor: '#024731', fontSize: '0.8rem', fontWeight: 500 }}
-                                >
-                                  {tag}
-                                  <button
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    style={{
-                                      background: 'none', border: 'none', color: '#fff',
-                                      padding: '0 2px', cursor: 'pointer', lineHeight: 1,
-                                    }}
-                                  >
-                                    ×
-                                  </button>
-                                </span>
-                              ))}
-                              <input
-                                type="text"
-                                value={tagInput}
-                                onChange={e => setTagInput(e.target.value)}
-                                onKeyDown={addTag}
-                                placeholder={tags.length === 0 ? 'e.g. password, reset, uh-username' : ''}
-                                style={{
-                                  border: 'none', outline: 'none', flexGrow: 1,
-                                  minWidth: '120px', fontSize: '0.9rem',
-                                }}
-                              />
-                            </div>
-                          </Form.Group>
-
-                {/* Hidden fields to preserve existing data that isn't editable */}
-                <input type="hidden" {...register('author')} />
-                <input type="hidden" {...register('used')} />
-
-                <Row className="pt-3">
-                  <Col>
-                    <Button type="submit" variant="primary" className="w-100">
-                      Submit
-                    </Button>
-                  </Col>
-                  <Col>
-                    <Button 
-                      type="button" 
-                      onClick={handleReset} 
-                      variant="outline-warning" 
-                      className="w-100"
-                    >
-                      Reset
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
-  </main>
+          {/* Actions */}
+          <Row>
+            <Col className="d-flex gap-2">
+              <Button type="submit" style={{ backgroundColor: '#024731', border: 'none' }}>
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline-secondary" onClick={handleReset}>
+                Reset
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Container>
+    </main>
   );
 };
 
