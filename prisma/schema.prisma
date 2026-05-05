@@ -38,6 +38,7 @@ model Comment {
   authorName  String
   templateId  Int
   createdAt   DateTime @default(now())
+  isRevision  Boolean  @default(false)
   template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }
 

@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "SiteConfig" (
+CREATE TABLE IF NOT EXISTS "SiteConfig" (
     "id" INTEGER NOT NULL DEFAULT 1,
     "masterCode" TEXT NOT NULL DEFAULT '',
     CONSTRAINT "SiteConfig_pkey" PRIMARY KEY ("id")
@@ -9,7 +9,7 @@ CREATE TABLE "SiteConfig" (
 INSERT INTO "SiteConfig" ("id", "masterCode") VALUES (1, '') ON CONFLICT DO NOTHING;
 
 -- CreateTable
-CREATE TABLE "WhitelistEntry" (
+CREATE TABLE IF NOT EXISTS "WhitelistEntry" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -17,4 +17,4 @@ CREATE TABLE "WhitelistEntry" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WhitelistEntry_username_key" ON "WhitelistEntry"("username");
+CREATE UNIQUE INDEX IF NOT EXISTS "WhitelistEntry_username_key" ON "WhitelistEntry"("username");

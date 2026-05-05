@@ -11,7 +11,8 @@ ALTER TABLE "TemplateUsage" DROP CONSTRAINT "TemplateUsage_templateId_fkey";
 ALTER TABLE "TemplateUsage" DROP CONSTRAINT "TemplateUsage_userId_fkey";
 
 -- AlterTable
-ALTER TABLE "TemplateUsage" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
+ALTER TABLE "TemplateUsage" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT NOW();
+ALTER TABLE "TemplateUsage" ALTER COLUMN "updatedAt" DROP DEFAULT;
 
 -- AddForeignKey
 ALTER TABLE "TemplateUsage" ADD CONSTRAINT "TemplateUsage_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

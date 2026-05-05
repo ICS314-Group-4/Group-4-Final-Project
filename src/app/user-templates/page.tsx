@@ -39,6 +39,7 @@ const userTemplatesPage = async ({ searchParams }: { searchParams: Promise<{ id?
 
   const commentCountsRaw = await prisma.comment.groupBy({
     by: ['templateId'],
+    where: { isRevision: false },
     _count: { id: true },
   });
   const commentCounts: Record<number, number> = Object.fromEntries(

@@ -3,7 +3,6 @@
 import { Category } from '@prisma/client';
 import { Template } from '@prisma/client';
 import { hash, compare } from 'bcrypt';
-import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
 import { auth } from './auth';
 import { revalidatePath } from 'next/cache';
@@ -23,23 +22,50 @@ const reverseCategoryMap = Object.fromEntries(
   Object.entries(categoryMap).map(([label, value]) => [value, label])
 );
 
+type SessionUser = { email: string; name: string | null; role: string };
+
+/** Resolves the current session and returns typed user fields, or throws if not authenticated. */
+async function requireSession(): Promise<SessionUser> {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error('Not authenticated');
+  return {
+    email: session.user.email,
+    name: session.user.name ?? null,
+    role: session.user.role ?? 'USER',
+  };
+}
+
+/** Resolves the current session, verifies admin role, and returns typed user fields. */
+async function requireAdmin(): Promise<SessionUser> {
+  const user = await requireSession();
+  if (user.role !== 'ADMIN') throw new Error('Not authorized');
+  return user;
+}
+
 /**
- * Creates a new contact in the database.
- * @param template, an object with the following properties: title, template, category, author, tags, used.
+ * Creates a new template in the database.
+ * Author is always the authenticated user — the client cannot spoof it.
  */
 export async function addTemplate(
-  template: { title: string; template: string; category: string; author: string; tags: string[]; used: number },
+  template: { title: string; template: string; category: string; tags: string[] },
 ): Promise<{ error: string } | { id: number }> {
+  if (!template.title.trim()) return { error: 'Title is required.' };
+  if (template.title.length > 200) return { error: 'Title must be 200 characters or fewer.' };
+  if (!template.template.trim()) return { error: 'Template body is required.' };
+  if (template.template.length > 10000) return { error: 'Template body must be 10,000 characters or fewer.' };
+  if (template.tags.length > 20) return { error: 'Maximum 20 tags allowed.' };
+  if (template.tags.some(t => t.length > 50)) return { error: 'Each tag must be 50 characters or fewer.' };
+  const user = await requireSession();
   const validatedCategory = categoryMap[template.category] || template.category;
   try {
     const created = await prisma.template.create({
       data: {
         title: template.title,
         template: template.template,
-        category: validatedCategory,
+        category: validatedCategory as Category,
         tags: template.tags,
-        author: template.author,
-        used: template.used,
+        author: user.email,
+        used: 0,
       },
     });
     return { id: created.id };
@@ -51,47 +77,50 @@ export async function addTemplate(
   }
 }
 
+/**
+ * Updates a template. Only the author or an admin may do this.
+ */
 export async function editTemplate(template: Template): Promise<{ error: string } | { success: true }> {
-  const session = await auth();
-  
-  try {
-    const oldVersion = await prisma.template.findUnique({
-      where: { id: template.id },
-    });
+  if (!template.title?.trim()) return { error: 'Title is required.' };
+  if (template.title.length > 200) return { error: 'Title must be 200 characters or fewer.' };
+  if (!template.template?.trim()) return { error: 'Template body is required.' };
+  if (template.template.length > 10000) return { error: 'Template body must be 10,000 characters or fewer.' };
+  if ((template.tags ?? []).length > 20) return { error: 'Maximum 20 tags allowed.' };
+  if ((template.tags ?? []).some(t => t.length > 50)) return { error: 'Each tag must be 50 characters or fewer.' };
+  const user = await requireSession();
 
-    if (!oldVersion) return { error: "Template not found." };
+  try {
+    const oldVersion = await prisma.template.findUnique({ where: { id: template.id } });
+    if (!oldVersion) return { error: 'Template not found.' };
+
+    if (oldVersion.author !== user.email && user.role !== 'ADMIN') {
+      return { error: 'Not authorized to edit this template.' };
+    }
 
     const changes: string[] = [];
+
     if (oldVersion.title !== template.title) {
       changes.push(`Title changed from "${oldVersion.title}" to "${template.title}"`);
     }
     if (oldVersion.template !== template.template) {
-      changes.push(`Template body was updated`);
+      changes.push('Template body was updated');
     }
     if (oldVersion.category !== template.category) {
-    const oldLabel = reverseCategoryMap[oldVersion.category] || oldVersion.category;
-    const newLabel = reverseCategoryMap[template.category] || template.category;
-    
-    changes.push(`Category moved from ${oldLabel} to ${newLabel}`);
+      const oldLabel = reverseCategoryMap[oldVersion.category] || oldVersion.category;
+      const newLabel = reverseCategoryMap[template.category] || template.category;
+      changes.push(`Category changed from ${oldLabel} to ${newLabel}`);
+    }
 
     const oldTags = oldVersion.tags || [];
     const newTags = template.tags || [];
-
     const addedTags = newTags.filter(tag => !oldTags.includes(tag));
     const removedTags = oldTags.filter(tag => !newTags.includes(tag));
+    if (addedTags.length > 0) changes.push(`Tags added: [${addedTags.join(', ')}]`);
+    if (removedTags.length > 0) changes.push(`Tags removed: [${removedTags.join(', ')}]`);
 
-    if (addedTags.length > 0 || removedTags.length > 0) {
-      const tagChanges: string[] = [];
-    if (addedTags.length > 0) tagChanges.push(`added [${addedTags.join(', ')}]`);
-    if (removedTags.length > 0) tagChanges.push(`removed [${removedTags.join(', ')}]`);
-    
-    changes.push(`Tags updated: ${tagChanges.join(' and ')}`);
-    }
-  }
-
-    const revisionText = changes.length > 0 
-      ? `Revised: ${changes.join('; ')}.`
-      : "The template was revised (no metadata changes).";
+    const revisionText = changes.length > 0
+      ? changes.join('; ')
+      : 'Minor revision (no tracked changes)';
 
     await prisma.$transaction(async (tx) => {
       await tx.template.update({
@@ -108,16 +137,18 @@ export async function editTemplate(template: Template): Promise<{ error: string 
       await tx.comment.create({
         data: {
           body: revisionText,
-          authorEmail: session?.user?.email || "System",
-          authorName: session?.user?.name || "System",
+          authorEmail: user.email,
+          authorName: user.name || user.email,
           templateId: template.id,
+          isRevision: true,
         },
       });
     });
 
-    revalidatePath(`/template/${template.id}`);
+    revalidatePath(`/view/${template.id}`);
     return { success: true };
   } catch (e: unknown) {
+    console.error('[editTemplate]', e);
     if ((e as { code?: string }).code === 'P2002') {
       return { error: 'A template with this title already exists.' };
     }
@@ -126,45 +157,64 @@ export async function editTemplate(template: Template): Promise<{ error: string 
 }
 
 /**
- * Deletes an existing template from the database.
- * @param id, the id of the template to delete.
+ * Deletes a template. Only the author or an admin may do this.
  */
-export async function deleteTemplate(id: number) {
-  // console.log(`deleteTemplate id: ${id}`);
-  await prisma.template.delete({
-    where: { id },
-  });
+export async function deleteTemplate(id: number): Promise<{ error: string } | { success: true }> {
+  try {
+    const user = await requireSession();
+    const template = await prisma.template.findUnique({ where: { id }, select: { author: true } });
+    if (!template) return { error: 'Template not found.' };
+    if (template.author !== user.email && user.role !== 'ADMIN') {
+      return { error: 'Not authorized to delete this template.' };
+    }
+    await prisma.template.delete({ where: { id } });
+    return { success: true };
+  } catch (e) {
+    console.error('[deleteTemplate]', e);
+    return { error: 'An unexpected error occurred.' };
+  }
 }
 
 /**
- * Adds a comment to a template.
+ * Adds a comment. Author is always the authenticated user — cannot be spoofed.
  */
-export async function addComment(comment: { body: string; authorEmail: string; authorName: string; templateId: number }) {
+export async function addComment(comment: { body: string; templateId: number }): Promise<{ error: string } | { success: true }> {
+  const trimmed = comment.body.trim();
+  if (!trimmed) return { error: 'Comment cannot be empty.' };
+  if (trimmed.length > 1000) return { error: 'Comment must be 1000 characters or fewer.' };
+  const sessionUser = await requireSession();
+  const dbUser = await prisma.user.findUnique({
+    where: { email: sessionUser.email },
+    select: { name: true },
+  });
   await prisma.comment.create({
     data: {
-      body: comment.body,
-      authorEmail: comment.authorEmail,
-      authorName: comment.authorName,
+      body: trimmed,
+      authorEmail: sessionUser.email,
+      authorName: dbUser?.name || sessionUser.name || sessionUser.email,
       templateId: comment.templateId,
     },
   });
+  return { success: true };
 }
 
 /**
- * Deletes a comment. Only the author or an admin can delete.
+ * Deletes a comment. Only the author or an admin may do this.
+ * Revision comments (system-generated) cannot be deleted by anyone.
  */
-export async function deleteComment(commentId: number, requesterEmail: string) {
+export async function deleteComment(commentId: number) {
+  const sessionUser = await requireSession();
   const comment = await prisma.comment.findUnique({ where: { id: commentId } });
   if (!comment) return;
-  const requester = await prisma.user.findUnique({ where: { email: requesterEmail } });
+  if (comment.isRevision) return;
+  const requester = await prisma.user.findUnique({ where: { email: sessionUser.email } });
   if (!requester) return;
-  if (comment.authorEmail !== requesterEmail && requester.role !== 'ADMIN') return;
+  if (comment.authorEmail !== sessionUser.email && requester.role !== 'ADMIN') return;
   await prisma.comment.delete({ where: { id: commentId } });
 }
 
 /**
- * Creates a new user in the database.
- * @param credentials, an object with the following properties: name, email, password.
+ * Creates a new user in the database (legacy / dev path).
  */
 export async function createUser(credentials: { name: string; email: string; password: string }) {
   const password = await hash(credentials.password, 10);
@@ -179,7 +229,6 @@ export async function createUser(credentials: { name: string; email: string; pas
 
 /**
  * Registers a new user via the whitelist + master code flow.
- * Returns an error string on failure, or { success: true } on success.
  */
 export async function registerUser(
   username: string,
@@ -213,7 +262,6 @@ export async function registerUser(
 
 /**
  * Resets a user's password using their username and the master code.
- * Returns an error string on failure, or { success: true } on success.
  */
 export async function resetPassword(
   username: string,
@@ -243,8 +291,9 @@ export async function resetPassword(
   return { success: true };
 }
 
-/** Returns the current master code. */
+/** Returns the current master code hash (admin only). */
 export async function getMasterCode(): Promise<string> {
+  await requireAdmin();
   const config = await prisma.siteConfig.upsert({
     where: { id: 1 },
     update: {},
@@ -253,8 +302,9 @@ export async function getMasterCode(): Promise<string> {
   return config.masterCode;
 }
 
-/** Updates the master code, storing a bcrypt hash. */
+/** Updates the master code. Admin only. */
 export async function setMasterCode(code: string) {
+  await requireAdmin();
   const hashed = await hash(code, 10);
   await prisma.siteConfig.upsert({
     where: { id: 1 },
@@ -263,67 +313,81 @@ export async function setMasterCode(code: string) {
   });
 }
 
-/** Returns all whitelist entries sorted by username. */
+/** Returns all whitelist entries. Admin only. */
 export async function getWhitelist() {
+  await requireAdmin();
   return prisma.whitelistEntry.findMany({ orderBy: { username: 'asc' } });
 }
 
-/** Adds a username + display name to the whitelist. */
+/** Adds a username to the whitelist. Admin only. */
 export async function addWhitelistEntry(username: string, name: string) {
+  await requireAdmin();
   await prisma.whitelistEntry.create({
     data: { username: username.toLowerCase().trim(), name: name.trim() },
   });
 }
 
-/** Removes a whitelist entry by id. */
+/** Removes a whitelist entry. Admin only. */
 export async function removeWhitelistEntry(id: number) {
+  await requireAdmin();
   await prisma.whitelistEntry.delete({ where: { id } });
 }
 
 /**
- * Changes the password of an existing user in the database.
- * @param credentials, an object with the following properties: email, password.
+ * Changes the authenticated user's password.
+ * Email is taken from the session — the client cannot target another account.
  */
 export async function changePassword(
-  credentials: { email: string; oldpassword: string; password: string },
+  credentials: { oldpassword: string; password: string },
 ): Promise<{ error: string } | { success: true }> {
-  const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-  if (!user) return { error: 'User not found.' };
+  const sessionUser = await requireSession();
+  const dbUser = await prisma.user.findUnique({ where: { email: sessionUser.email } });
+  if (!dbUser) return { error: 'User not found.' };
 
-  const oldPasswordValid = await compare(credentials.oldpassword, user.password);
+  const oldPasswordValid = await compare(credentials.oldpassword, dbUser.password);
   if (!oldPasswordValid) return { error: 'Current password is incorrect.' };
 
   const password = await hash(credentials.password, 10);
   await prisma.user.update({
-    where: { email: credentials.email },
+    where: { email: sessionUser.email },
     data: { password },
   });
   return { success: true };
 }
 
 /**
- * edits the name and signature of an existing user
+ * Edits a user's display name and signature.
+ * Users may only edit their own profile. Admins may edit any profile.
  */
-export async function editProfile(credentials: { email: string; newName: string; newSig: string }) {
-  // console.log(`editProfile data: ${JSON.stringify(credentials, null, 2)}`);
-  await prisma.user.update({
-    where: { email: credentials.email },
-    data: {
-      name: credentials.newName,
-      sign: credentials.newSig,
-    },
-  });
+export async function editProfile(credentials: { email: string; newName: string; newSig: string }): Promise<{ error: string } | { success: true }> {
+  try {
+    const sessionUser = await requireSession();
+    if (sessionUser.email !== credentials.email && sessionUser.role !== 'ADMIN') {
+      return { error: 'Not authorized to edit this profile.' };
+    }
+    if (credentials.newName.length > 100) return { error: 'Name must be 100 characters or fewer.' };
+    if (credentials.newSig.length > 1000) return { error: 'Signature must be 1000 characters or fewer.' };
+    await prisma.user.update({
+      where: { email: credentials.email },
+      data: { name: credentials.newName, sign: credentials.newSig },
+    });
+    return { success: true };
+  } catch (e) {
+    console.error('[editProfile]', e);
+    return { error: 'An unexpected error occurred.' };
+  }
 }
 
 /**
- * Deletes an existing user from the database.
- * @param id, the id of the user to delete.
+ * Deletes a user account. Admin only.
  */
-export async function deleteUser(id: number) {
-  // console.log(`deleteUser id: ${id}`);
-  await prisma.user.delete({
-    where: { id },
-  });
-  // After deleting, redirect to the list page
-  redirect('/list');
+export async function deleteUser(id: number): Promise<{ error: string } | { success: true }> {
+  try {
+    await requireAdmin();
+    await prisma.user.delete({ where: { id } });
+    return { success: true };
+  } catch (e) {
+    console.error('[deleteUser]', e);
+    return { error: 'An unexpected error occurred.' };
+  }
 }

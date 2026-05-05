@@ -1,16 +1,14 @@
-{/* API thing to store all existing tags */}
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 
 export async function GET() {
-    // Get all tags
-    const templates = await prisma.template.findMany({
-        select: { tags: true },
-    });
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-    // Collect all tags into a single array
-    const allTags = [...new Set(templates.flatMap(template => template.tags))];
-    allTags.sort();
-
+  const templates = await prisma.template.findMany({ select: { tags: true } });
+  const allTags = [...new Set(templates.flatMap(t => t.tags))].sort();
   return NextResponse.json(allTags);
 }

@@ -5,4 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "TemplateUsage" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
+ALTER TABLE "TemplateUsage" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT NOW();
+ALTER TABLE "TemplateUsage" ALTER COLUMN "updatedAt" DROP DEFAULT;

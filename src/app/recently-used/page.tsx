@@ -8,7 +8,7 @@ export default async function RecentlyUsedPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/auth/signin");
   }
 
   const recentUsages = await prisma.templateUsage.findMany({
@@ -19,7 +19,7 @@ export default async function RecentlyUsedPage() {
       template: {
         include: {
           _count: {
-            select: { comments: true }
+            select: { comments: { where: { isRevision: false } } }
           }
         }
       },
@@ -65,7 +65,7 @@ export default async function RecentlyUsedPage() {
         <TemplateFilterUserTemplates 
           templates={templates} 
           categories={categories}
-          isEditor={true}
+          isEditor={false}
           name={session.user.name || "User"}
           commentCount={commentCountMap}
         />
