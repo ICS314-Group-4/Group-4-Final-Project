@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import swal from 'sweetalert';
 import { Container, Button, Form } from 'react-bootstrap';
 import { editProfile } from '@/lib/dbActions';
 
@@ -19,6 +19,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const EditProfileForm = ({ email, name, signature }: { email: string; name: string; signature: string }) => {
+  const [saved, setSaved] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -30,10 +32,9 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
   });
 
   const onSubmit = async (data: EditProfileForm) => {
-    // console.log(JSON.stringify(data, null, 2));
     await editProfile({ email, ...data });
-    await swal('Profile Changed', 'Your profile has been updated', 'success', { timer: 2000 });
-    window.location.reload();
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
   };
 
   return (
@@ -46,6 +47,16 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
       </div>
       {/* Body */}
       <Container className="py-5" style={{ maxWidth: '760px' }}>
+        {saved && (
+          <div style={{
+            backgroundColor: '#e8f0ec', border: '1px solid #c8d8d0',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#024731',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            Profile updated successfully.
+          </div>
+        )}
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group className="mb-4">
             <Form.Label>Name</Form.Label>
@@ -65,7 +76,7 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
             <textarea
                 {...register('newSig')}
                 className={`form-control ${errors.newSig ? 'is-invalid' : ''}`}
-                rows={15}
+                rows={4}
                 style={{ resize: 'vertical' }}
             />
             <div className="invalid-feedback">{errors.newSig?.message}</div>
@@ -76,7 +87,7 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
 
             <Form.Group className="py-3">
             <Button type="submit" className="button">
-                Edit Profile
+                Save Changes
             </Button>
             <Button type="button" variant='outline-secondary' onClick={() => reset({ newName: name, newSig: signature ?? '' })} className='float-end' >
                 Reset

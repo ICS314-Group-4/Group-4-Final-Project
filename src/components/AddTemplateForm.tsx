@@ -28,6 +28,7 @@ const AddTemplateForm: React.FC = () => {
   const [tagInput, setTagInput] = useState('');
   const [published, setPublished] = useState(false);
   const [toastFading, setToastFading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const [showPreview, setShowPreview] = useState(false);
   const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
@@ -88,7 +89,8 @@ const AddTemplateForm: React.FC = () => {
     category: string;
     tags: (string | undefined)[];
   }) => {
-    const newId = await addTemplate({
+    setServerError('');
+    const result = await addTemplate({
       title: data.title,
       template: data.template,
       category: data.category,
@@ -96,10 +98,14 @@ const AddTemplateForm: React.FC = () => {
       tags: (data.tags ?? []).filter((t): t is string => !!t),
       used: 0,
     });
+    if ('error' in result) {
+      setServerError(result.error);
+      return;
+    }
     setPublished(true);
     setToastFading(false);
     setTimeout(() => setToastFading(true), 3500);
-    setTimeout(() => router.push(`/view/${newId}`), 5000);
+    setTimeout(() => router.push(`/view/${result.id}`), 5000);
   };
 
   return (
@@ -140,6 +146,16 @@ const AddTemplateForm: React.FC = () => {
             Template published! Taking you there now...
           </div>
         )}
+        {serverError && (
+          <div style={{
+            backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
+            borderRadius: '0.375rem', padding: '10px 16px',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
+          }}>
+            {serverError}
+          </div>
+        )}
         <Form onSubmit={handleSubmit(onSubmit)}>
 
           {/* Title */}
@@ -172,14 +188,14 @@ const AddTemplateForm: React.FC = () => {
             <Form.Control
               as="textarea"
               rows={10}
-              placeholder={`Aloha [Student Name],\n\nMahalo for reaching out to the UH ITS Help Desk...\n\n`}
+              placeholder={`Aloha,\n\nThank you for contacting the UH ITS Help Desk...\n\n`}
               style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
               {...register('template')}
               isInvalid={!!errors.template}
             />
             <Form.Control.Feedback type="invalid">{errors.template?.message}</Form.Control.Feedback>
             <Form.Text className="text-muted">
-              Use placeholders like [Student Name] so others can quickly customize, but don&apos;t include a placeholder for sign-offs or sender contact info. The user&apos;s signature will be automatically appended when they press copy.
+              Include [signature] at the end of the email body.
             </Form.Text>
           </Form.Group>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Container, Button, Form } from 'react-bootstrap';
 import { Template, Comment } from '@prisma/client';
@@ -22,6 +22,8 @@ type Props = {
 export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [usedCount, setUsedCount] = useState(item.used ?? 0);
+  const countedRef = useRef(false);
   const [commentBody, setCommentBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [posted, setPosted] = useState(false);
@@ -30,13 +32,17 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
     try {
       await navigator.clipboard.writeText((item.template || '') + '\n' + currentUserSign);
       setCopied(true);
-      const response = await fetch('/api/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId: item.id }),
-      });
-      const data = await response.json();
-      if (!response.ok) console.warn('Counter skipped:', data.message);
+      if (!countedRef.current) {
+        countedRef.current = true;
+        setUsedCount(c => c + 1);
+        const response = await fetch('/api/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ templateId: item.id }),
+        });
+        const data = await response.json();
+        if (!response.ok) console.warn('Counter skipped:', data.message);
+      }
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Network error:', err);
@@ -85,7 +91,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
         {/* Stats row */}
         <div className="d-flex gap-4 mb-5 pb-3" style={{ borderBottom: '1px solid #e4ebe7' }}>
           <div>
-            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{item.used ?? 0}</div>
+            <div className="fw-bold" style={{ fontSize: '1.4rem' }}>{usedCount}</div>
             <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6c757d' }}>Times Used</div>
           </div>
           <div>

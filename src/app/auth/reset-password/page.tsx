@@ -1,24 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { Container, Form, Button } from 'react-bootstrap';
-import { registerUser } from '@/lib/dbActions';
+import { resetPassword } from '@/lib/dbActions';
 
 type FormData = {
   username: string;
   masterCode: string;
-  password: string;
+  newPassword: string;
   confirmPassword: string;
 };
 
 const schema = Yup.object({
   username: Yup.string().required('UH username is required'),
   masterCode: Yup.string().required('Master code is required'),
-  password: Yup.string()
+  newPassword: Yup.string()
     .required('Password is required')
     .min(8, 'Must be at least 8 characters')
     .max(32, 'Must not exceed 32 characters')
@@ -26,10 +26,11 @@ const schema = Yup.object({
     .matches(/[0-9]/, 'Must contain at least one number'),
   confirmPassword: Yup.string()
     .required('Please confirm your password')
-    .oneOf([Yup.ref('password')], 'Passwords do not match'),
+    .oneOf([Yup.ref('newPassword')], 'Passwords do not match'),
 });
 
-const SignUp = () => {
+const ResetPassword = () => {
+  const router = useRouter();
   const [serverError, setServerError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,26 +41,27 @@ const SignUp = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     setServerError('');
-    const result = await registerUser(data.username, data.masterCode, data.password);
+    const result = await resetPassword(data.username, data.masterCode, data.newPassword);
     if ('error' in result) {
       setServerError(result.error);
       setSubmitting(false);
       return;
     }
-    await signIn('credentials', {
-      callbackUrl: '/auth/edit-profile',
-      email: data.username.toLowerCase().trim(),
-      password: data.password,
-    });
+    router.push('/auth/signin?reset=success');
   };
 
   return (
     <main>
-      <div style={{ backgroundColor: '#024731', color: '#fff' }} className="py-4">
-        <Container>
-          <h1 className="fw-bold mb-1">Create Account</h1>
+      <div style={{ backgroundColor: '#024731', color: '#fff', position: 'relative', overflow: 'hidden' }} className="py-4">
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }} />
+        <Container style={{ position: 'relative' }}>
+          <h1 className="fw-bold mb-1">Reset Password</h1>
           <p className="mb-0" style={{ opacity: 0.85, fontSize: '0.95rem' }}>
-            You need a UH username on the whitelist and the team master code to register.
+            Verify your identity with your username and the team master code.
           </p>
         </Container>
       </div>
@@ -69,7 +71,8 @@ const SignUp = () => {
           <div style={{
             backgroundColor: '#fff3f3', border: '1px solid #f5c6cb',
             borderRadius: '0.375rem', padding: '10px 16px',
-            fontSize: '0.875rem', color: '#842029', marginBottom: '1.5rem',
+            fontSize: '0.875rem', color: '#842029',
+            marginBottom: '1.5rem', fontWeight: 500,
           }}>
             {serverError}
           </div>
@@ -86,7 +89,6 @@ const SignUp = () => {
               style={{ borderColor: '#e4ebe7' }}
             />
             <Form.Control.Feedback type="invalid">{errors.username?.message}</Form.Control.Feedback>
-            <Form.Text className="text-muted">Your UH username, not your full email address.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-4">
@@ -99,27 +101,26 @@ const SignUp = () => {
               style={{ borderColor: '#e4ebe7' }}
             />
             <Form.Control.Feedback type="invalid">{errors.masterCode?.message}</Form.Control.Feedback>
-            <Form.Text className="text-muted">Ask your site admin if you don&apos;t have this.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">Password</Form.Label>
+            <Form.Label className="fw-semibold">New Password</Form.Label>
             <Form.Control
               type="password"
-              placeholder="Create a password"
-              {...register('password')}
-              isInvalid={!!errors.password}
+              placeholder="Create a new password"
+              {...register('newPassword')}
+              isInvalid={!!errors.newPassword}
               style={{ borderColor: '#e4ebe7' }}
             />
-            <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.newPassword?.message}</Form.Control.Feedback>
             <Form.Text className="text-muted">8–32 characters, at least one uppercase letter and one number.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-5">
-            <Form.Label className="fw-semibold">Confirm Password</Form.Label>
+            <Form.Label className="fw-semibold">Confirm New Password</Form.Label>
             <Form.Control
               type="password"
-              placeholder="Re-enter your password"
+              placeholder="Re-enter your new password"
               {...register('confirmPassword')}
               isInvalid={!!errors.confirmPassword}
               style={{ borderColor: '#e4ebe7' }}
@@ -132,12 +133,12 @@ const SignUp = () => {
             disabled={submitting}
             style={{ backgroundColor: '#024731', border: 'none', padding: '10px 28px', fontWeight: 600 }}
           >
-            {submitting ? 'Creating account...' : 'Create Account'}
+            {submitting ? 'Resetting...' : 'Reset Password'}
           </Button>
         </Form>
 
         <p className="mt-4" style={{ fontSize: '0.875rem', color: '#6c757d' }}>
-          Already have an account?{' '}
+          Remembered it?{' '}
           <a href="/auth/signin" style={{ color: '#024731' }}>Sign in</a>
         </p>
       </Container>
@@ -145,4 +146,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default ResetPassword;
