@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client"; 
 
 export async function POST(req: Request) {  
   const session = await auth();
@@ -16,30 +15,41 @@ export async function POST(req: Request) {
     const tId = Number(templateId);
 
     const result = await prisma.$transaction(async (tx) => {
-      await tx.templateUsage.upsert({
+      const existingUsage = await tx.templateUsage.findUnique({
         where: {
           userId_templateId: {
             userId: userId,
             templateId: tId,
           },
         },
-        update: {
-          updatedAt: new Date(),
-        },
-        create: {
-          userId: userId,
-          templateId: tId,
-        },
       });
 
-      
-      return await tx.template.update({
-        where: { id: tId },
-        data: { used: { increment: 1 } },
-      });
+      if (existingUsage) {
+        await tx.templateUsage.update({
+          where: { id: existingUsage.id },
+          data: { updatedAt: new Date() },
+        });
+
+        return await tx.template.findUnique({ where: { id: tId } });
+      } else {
+        await tx.templateUsage.create({
+          data: {
+            userId: userId,
+            templateId: tId,
+          },
+        });
+
+        return await tx.template.update({
+          where: { id: tId },
+          data: { used: { increment: 1 } },
+        });
+      }
     });
 
-    return NextResponse.json({ success: true, used: result.used });
+    return NextResponse.json({ 
+      success: true, 
+      used: result?.used ?? 0 
+    });
 
   } catch (error: unknown) {
     console.error("Database error:", error);
