@@ -19,7 +19,7 @@ const features = [
   {
     icon: <BookmarkPlus size={28} />,
     title: 'Built by the Team',
-    description: 'Every template is written by a fellow UH ITS student worker — responses that work across the whole UH community.',
+    description: 'Every template is written by a fellow UH ITS student worker: responses that work across the whole UH community.',
     href: '/auth/signin',
   },
 ];
