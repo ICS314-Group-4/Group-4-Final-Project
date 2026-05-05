@@ -7,28 +7,28 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
+  id       Int             @id @default(autoincrement())
+  email    String          @unique
   password String
-  role     Role   @default(USER)
-  name     String @default("Please add a name on your profile page")
-  sign     String @default("")
-  usages   TemplateUsage[]
+  role     Role            @default(USER)
+  name     String          @default("Please add a name on your profile page")
+  sign     String          @default("")
   savedIds Int[]
+  usages   TemplateUsage[]
 }
 
 model Template {
-  id        Int       @id @default(autoincrement())
-  title     String    @unique
+  id        Int             @id @default(autoincrement())
   template  String
   category  Category
-  tags      String[]
   author    String
-  used      Int      @default(0)
-  usages    TemplateUsage[]
+  used      Int             @default(0)
+  tags      String[]
+  title     String          @unique
+  createdAt DateTime        @default(now())
+  modified  DateTime        @default(now())
   comments  Comment[]
-  createdAt DateTime  @default(now())
-  modified  DateTime  @default(now())
+  usages    TemplateUsage[]
 }
 
 model Comment {
@@ -45,10 +45,9 @@ model TemplateUsage {
   id         Int      @id @default(autoincrement())
   userId     Int
   templateId Int
+  updatedAt  DateTime @updatedAt
   template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  updatedAt  DateTime @updatedAt
 
   @@unique([userId, templateId])
 }

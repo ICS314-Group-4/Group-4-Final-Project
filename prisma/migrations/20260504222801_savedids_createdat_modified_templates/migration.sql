@@ -11,26 +11,6 @@ ADD COLUMN     "modified" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "savedIds" INTEGER[];
 
--- CreateTable
-CREATE TABLE "SiteConfig" (
-    "id" INTEGER NOT NULL DEFAULT 1,
-    "masterCode" TEXT NOT NULL DEFAULT '',
-
-    CONSTRAINT "SiteConfig_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "WhitelistEntry" (
-    "id" SERIAL NOT NULL,
-    "username" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-
-    CONSTRAINT "WhitelistEntry_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "WhitelistEntry_username_key" ON "WhitelistEntry"("username");
-
 -- AddForeignKey
 ALTER TABLE "TemplateUsage" ADD CONSTRAINT "TemplateUsage_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "Template"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
