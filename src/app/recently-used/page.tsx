@@ -37,9 +37,9 @@ export default async function RecentlyUsedPage() {
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h1 className="fw-bold mb-1">Recently Used Templates</h1>
-              <p className="mb-0" style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-                {recentUsages.length} template{recentUsages.length !== 1 ? 's' : ''} available
-              </p>
+              <span className="badge rounded-pill bg-light text-dark border">
+                {recentUsages.length} Template{recentUsages.length !== 1 ? 's' : ''}
+              </span>
             </div>
             <a
               href="/add"
