@@ -7,7 +7,7 @@ import { setMasterCode } from '@/lib/dbActions';
 
 export default function MasterCodeManager({ current }: { current: string }) {
   const router = useRouter();
-  const [revealed, setRevealed] = useState(false);
+  const isSet = current !== '';
   const [newCode, setNewCode] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -27,34 +27,29 @@ export default function MasterCodeManager({ current }: { current: string }) {
 
   return (
     <div style={{ maxWidth: '480px' }}>
-      {/* Current code display */}
+      {/* Status indicator */}
       <div className="mb-3">
-        <div style={{ fontSize: '0.8rem', color: '#6c757d', marginBottom: '4px' }}>Current master code</div>
-        <div className="d-flex align-items-center gap-2">
-          <code style={{
-            backgroundColor: '#f4f7f5', border: '1px solid #e4ebe7',
-            borderRadius: '0.375rem', padding: '6px 12px', fontSize: '0.95rem',
-            letterSpacing: revealed ? '0.05em' : '0.15em',
-            color: '#212529', flexGrow: 1,
-          }}>
-            {current === '' ? (
-              <span style={{ color: '#adb5bd', letterSpacing: 'normal' }}>Not set</span>
-            ) : revealed ? current : '•'.repeat(Math.min(current.length, 16))}
-          </code>
-          <button
-            onClick={() => setRevealed(r => !r)}
-            style={{
-              background: 'none', border: '1px solid #e4ebe7', borderRadius: '0.375rem',
-              padding: '6px 10px', cursor: 'pointer', fontSize: '0.8rem', color: '#6c757d',
-            }}
-          >
-            {revealed ? 'Hide' : 'Show'}
-          </button>
+        <div style={{ fontSize: '0.8rem', color: '#6c757d', marginBottom: '4px' }}>Current status</div>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          padding: '6px 14px', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 500,
+          backgroundColor: isSet ? '#e8f0ec' : '#fff3cd',
+          color: isSet ? '#024731' : '#856404',
+          border: `1px solid ${isSet ? '#c8d8d0' : '#ffc107'}`,
+        }}>
+          <span>{isSet ? '✓ Master code is set' : '⚠ No master code set'}</span>
         </div>
+        {isSet && (
+          <p style={{ fontSize: '0.78rem', color: '#adb5bd', marginTop: '6px', marginBottom: 0 }}>
+            The code is stored as a secure hash and cannot be retrieved. Set a new one below to replace it.
+          </p>
+        )}
       </div>
 
       {/* Update form */}
-      <div style={{ fontSize: '0.8rem', color: '#6c757d', marginBottom: '4px' }}>Set new master code</div>
+      <div style={{ fontSize: '0.8rem', color: '#6c757d', marginBottom: '4px' }}>
+        {isSet ? 'Replace master code' : 'Set master code'}
+      </div>
       <div className="d-flex gap-2">
         <Form.Control
           type="password"
