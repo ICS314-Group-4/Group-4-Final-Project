@@ -29,6 +29,7 @@ export default async function ViewTemplatePage({ params }: { params: { id: strin
 
   const currentUserEmail = session?.user?.email ?? '';
   const currentUser = await prisma.user.findUnique({ where: { email: currentUserEmail } });
+  const currentUserName = currentUser?.name ?? currentUserEmail;
   const currentUserSign = currentUser?.sign ?? '';
   const isAdmin = currentUser?.role === 'ADMIN';
   const authorRecord = await prisma.user.findUnique({
@@ -44,6 +45,7 @@ export default async function ViewTemplatePage({ params }: { params: { id: strin
         item={item}
         comments={comments}
         currentUserEmail={currentUserEmail}
+        currentUserName={currentUserName}
         currentUserSign={currentUserSign}
         isAdmin={isAdmin}
         authorId={authorId}

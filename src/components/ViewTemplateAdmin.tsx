@@ -13,17 +13,24 @@ type Props = {
   item: Template;
   comments: Comment[];
   currentUserEmail: string;
+  currentUserName: string;
+  currentUserSign: string;
 };
 
-export default function ViewTemplateAdmin({ item, comments, currentUserEmail }: Props) {
+export default function ViewTemplateAdmin({ item, comments, currentUserEmail, currentUserName, currentUserSign }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const resolvedSignature = currentUserSign.trim()
+    ? currentUserSign
+    : `Thank you,\n${currentUserName}\nITS Help Desk Consultant`;
+  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, resolvedSignature);
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(item.template || '');
+      await navigator.clipboard.writeText(resolvedTemplate);
       setCopied(true);
       const res = await fetch('/api/templates', {
         method: 'POST',
@@ -120,7 +127,7 @@ export default function ViewTemplateAdmin({ item, comments, currentUserEmail }: 
         </div>
         <div className="p-4 mb-5" style={{ backgroundColor: '#f4f7f5', border: '1px solid #e4ebe7', borderRadius: '0.375rem' }}>
           <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.95rem', marginBottom: 0 }}>
-            {item.template}
+            {resolvedTemplate}
           </pre>
         </div>
 

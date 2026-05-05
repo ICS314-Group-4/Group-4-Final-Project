@@ -13,12 +13,13 @@ type Props = {
   item: Template;
   comments: Comment[];
   currentUserEmail: string;
+  currentUserName: string;
   currentUserSign: string;
   isAdmin: boolean;
   authorId: number | null;
 };
 
-export default function ViewTemplate({ item, comments, currentUserEmail, currentUserSign, isAdmin, authorId }: Props) {
+export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [usedCount, setUsedCount] = useState(item.used ?? 0);
@@ -27,9 +28,14 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
   const [submitting, setSubmitting] = useState(false);
   const [posted, setPosted] = useState(false);
 
+  const resolvedSignature = currentUserSign.trim()
+    ? currentUserSign
+    : `Thank you,\n${currentUserName}\nITS Help Desk Consultant`;
+  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, resolvedSignature);
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText((item.template || '') + '\n' + currentUserSign);
+      await navigator.clipboard.writeText(resolvedTemplate);
       setCopied(true);
       if (!countedRef.current) {
         countedRef.current = true;
@@ -152,7 +158,7 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           }}
         >
           <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.95rem', marginBottom: 0 }}>
-            {item.template}
+            {resolvedTemplate}
           </pre>
         </div>
 
