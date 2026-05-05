@@ -88,6 +88,9 @@ const NavBar: React.FC = () => {
                 >
                   My Templates
                 </Nav.Link>
+                <Nav.Link id="recently-used-nav" href="/recently-used" style={linkStyle(pathName === '/recently-used')}>
+                  Recently Used
+                </Nav.Link>
               </>
             )}
             {currentUser && role === 'ADMIN' && (
