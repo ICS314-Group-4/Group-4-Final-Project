@@ -17,9 +17,10 @@ type Props = {
   currentUserSign: string;
   isAdmin: boolean;
   authorId: number | null;
+  authorName: string;
 };
 
-export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId }: Props) {
+export default function ViewTemplate({ item, comments, currentUserEmail, currentUserName, currentUserSign, isAdmin, authorId, authorName }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [usedCount, setUsedCount] = useState(item.used ?? 0);
@@ -31,7 +32,8 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
   const resolvedSignature = currentUserSign.trim()
     ? currentUserSign
     : `Thank you,\n${currentUserName}\nITS Help Desk Consultant`;
-  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, resolvedSignature);
+  // Use function form of replace to prevent '$' in the signature being interpreted as a special pattern
+  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, () => resolvedSignature);
 
   const handleCopy = async () => {
     try {
@@ -93,8 +95,8 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
           <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.875rem' }}>
             By {authorId
-              ? <a href={`/user-templates?id=${authorId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.author}</a>
-              : <span>{item.author}</span>
+              ? <a href={`/user-templates?id=${authorId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{authorName}</a>
+              : <span>{authorName}</span>
             }
           </p>
         </Container>

@@ -15,9 +15,10 @@ type Props = {
   currentUserEmail: string;
   currentUserName: string;
   currentUserSign: string;
+  authorName: string;
 };
 
-export default function ViewTemplateAdmin({ item, comments, currentUserEmail, currentUserName, currentUserSign }: Props) {
+export default function ViewTemplateAdmin({ item, comments, currentUserEmail, currentUserName, currentUserSign, authorName }: Props) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState('');
@@ -26,7 +27,7 @@ export default function ViewTemplateAdmin({ item, comments, currentUserEmail, cu
   const resolvedSignature = currentUserSign.trim()
     ? currentUserSign
     : `Thank you,\n${currentUserName}\nITS Help Desk Consultant`;
-  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, resolvedSignature);
+  const resolvedTemplate = (item.template || '').replace(/\[signature\]/gi, () => resolvedSignature);
 
   const handleCopy = async () => {
     try {
@@ -80,7 +81,7 @@ export default function ViewTemplateAdmin({ item, comments, currentUserEmail, cu
             {categoryLabels[item.category]} · #{item.id}
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
-          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>By {item.author}</p>
+          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>By {authorName}</p>
         </Container>
       </div>
 

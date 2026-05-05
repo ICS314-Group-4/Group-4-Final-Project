@@ -122,6 +122,11 @@ export async function editTemplate(template: Template): Promise<{ error: string 
       ? changes.join('; ')
       : 'Minor revision (no tracked changes)';
 
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email },
+      select: { name: true },
+    });
+
     await prisma.$transaction(async (tx) => {
       await tx.template.update({
         where: { id: template.id },
@@ -138,7 +143,7 @@ export async function editTemplate(template: Template): Promise<{ error: string 
         data: {
           body: revisionText,
           authorEmail: user.email,
-          authorName: user.name || user.email,
+          authorName: dbUser?.name || user.email,
           templateId: template.id,
           isRevision: true,
         },
@@ -230,11 +235,21 @@ export async function createUser(credentials: { name: string; email: string; pas
 /**
  * Registers a new user via the whitelist + master code flow.
  */
+function validatePassword(password: string): string | null {
+  if (password.length < 8) return 'Password must be at least 8 characters.';
+  if (password.length > 32) return 'Password must not exceed 32 characters.';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter.';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least one number.';
+  return null;
+}
+
 export async function registerUser(
   username: string,
   masterCode: string,
   password: string,
 ): Promise<{ error: string } | { success: true }> {
+  const passwordError = validatePassword(password);
+  if (passwordError) return { error: passwordError };
   const normalized = username.toLowerCase().trim();
 
   const entry = await prisma.whitelistEntry.findUnique({ where: { username: normalized } });
@@ -268,6 +283,8 @@ export async function resetPassword(
   masterCode: string,
   newPassword: string,
 ): Promise<{ error: string } | { success: true }> {
+  const passwordError = validatePassword(newPassword);
+  if (passwordError) return { error: passwordError };
   const normalized = username.toLowerCase().trim();
 
   const user = await prisma.user.findUnique({ where: { email: normalized } });
