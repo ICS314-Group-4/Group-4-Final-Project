@@ -40,4 +40,6 @@ export const EditTemplateSchema = Yup.object({
   tags: Yup.array().of(Yup.string().required()).ensure().required(),
   author: Yup.string().required(),
   used: Yup.number().required(),
+  createdAt: Yup.date().required(),
+  modified: Yup.date().required(),
 });
