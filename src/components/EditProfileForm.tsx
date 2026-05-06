@@ -80,7 +80,7 @@ const EditProfileForm = ({ email, name, signature }: { email: string; name: stri
             />
             <div className="invalid-feedback">{errors.newName?.message}</div>
             <Form.Text className="text-muted">
-              This name will be shown to other users when you post templates and comments. It does not need to be your real name, but it should be something you can be identified by.
+              This name will be shown to other users when you post templates and comments. This should be your real name. It will be shown to other users when you post templates/comments, and will also be added to your default signature.
             </Form.Text>
             </Form.Group>
 
