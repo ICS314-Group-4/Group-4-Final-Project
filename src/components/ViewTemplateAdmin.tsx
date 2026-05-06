@@ -82,6 +82,12 @@ export default function ViewTemplateAdmin({ item, comments, currentUserEmail, cu
           </div>
           <h1 className="fw-bold mb-1" style={{ fontSize: '1.75rem' }}>{item.title}</h1>
           <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem' }}>By {authorName}</p>
+          <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem', color: '#fff' }}>
+            Created: {new Date(item.createdAt).toLocaleString()}
+            {item.modified && item.modified !== item.createdAt && (
+              <> · Last modified: {new Date(item.modified).toLocaleString()}</>
+            )}
+          </p>
         </Container>
       </div>
 
