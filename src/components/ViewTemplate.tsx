@@ -99,6 +99,12 @@ export default function ViewTemplate({ item, comments, currentUserEmail, current
               : <span>{authorName}</span>
             }
           </p>
+                    <p className="mb-0" style={{ opacity: 0.75, fontSize: '0.85rem', color: '#fff' }}>
+            Created: {new Date(item.createdAt).toLocaleString()}
+            {item.modified && item.modified !== item.createdAt && (
+              <> · Last modified: {new Date(item.modified).toLocaleString()}</>
+            )}
+          </p>
         </Container>
       </div>
 
