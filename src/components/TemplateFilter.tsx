@@ -84,7 +84,7 @@ const TemplateFilter = ({ templates, categories, authors, commentCounts, initial
     setSearch(tag);
   };
   
-    const [existingTags, setExistingTags] = useState<string[]>([]);
+  const [existingTags, setExistingTags] = useState<string[]>([]);
 
   useEffect(() => {
   fetch('/api/tags')

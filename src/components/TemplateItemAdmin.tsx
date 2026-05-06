@@ -1,13 +1,22 @@
 import { Template } from '@prisma/client';
 import { categoryLabels } from '@/lib/categoryLabels';
 import { deleteTemplate } from '@/lib/dbActions';
+import { useRouter } from 'next/navigation';
 
 /* Renders a single row in the List Template table. See list/page.tsx. */
-const TemplateItemAdmin = ({ template }: { template: Template }) => (
+const TemplateItemAdmin = ({ template, onTagClick }: { template: Template; onTagClick?: (tag: string) => void }) => {
+  const router = useRouter();
+
+  const tagSearchEvent = (e: React.MouseEvent, tag: string) => {
+    e.stopPropagation();
+    if (onTagClick) onTagClick(tag);
+  };
+  
+  return (
   <tr
       className="align-middle"
       style={{ cursor: 'pointer' }}
-      onClick={() => { window.location.href = `/viewadmin/${template.id}`; }}
+      onClick={() => router.push(`/viewadmin/${template.id}`)}
     >
       <td style={{ maxWidth: '340px' }}>
         <div
@@ -24,13 +33,13 @@ const TemplateItemAdmin = ({ template }: { template: Template }) => (
         {template.tags?.length > 0 && (
           <div className="mt-1 d-flex flex-wrap gap-1">
             {template.tags.map((tag) => (
-              <span
+              <button
                 key={tag}
-                className="badge fw-normal"
-                style={{ backgroundColor: '#024731', fontSize: '0.7rem' }}
+                className="badge fw-normal tag-badge"
+                onClick={(e) => tagSearchEvent(e, tag)}
               >
                 {tag}
-              </span>
+              </button>
             ))}
           </div>
         )}
@@ -79,6 +88,7 @@ const TemplateItemAdmin = ({ template }: { template: Template }) => (
       </div>
     </td>
     </tr>
-);
+  );
+};
 
 export default TemplateItemAdmin;

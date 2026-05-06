@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
 import { Category, Template } from '@prisma/client';
 import TemplateItemAdmin from './TemplateItemAdmin';
@@ -25,18 +25,60 @@ const TemplateFilterAdmin = ({ templates, categories }: Props) => {
     return matchesCategory && matchesSearch;
   });
 
+    const [existingTags, setExistingTags] = useState<string[]>([]);
+
+    useEffect(() => {
+    fetch('/api/tags')
+      .then(res => res.json())
+      .then(data => setExistingTags(data))
+      .catch(err => console.error('Failed to load tag suggestions', err));
+  }, []);
+
   return (
     <>
       {/* Search + filters */}
       <div className="mb-4 d-flex flex-column gap-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by title, category, or tag..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ maxWidth: '420px', fontSize: '0.9rem' }}
-        />
+        <div style={{ position: 'relative', maxWidth: '420px', width: '100%' }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by title, category, or tag..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ maxWidth: '420px', fontSize: '0.9rem' }}
+            list={search.length > 0 ? "search-tag-suggestions" : undefined}
+          />
+          {search.length > 0 && (
+            <datalist id="search-tag-suggestions">
+              {existingTags
+                .filter(tag => !search.toLowerCase().includes(tag.toLowerCase()))
+                .map(tag => (
+                  <option key={tag} value={tag} />
+                ))}
+            </datalist>
+          )}
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            style={{
+              position: 'absolute',
+              right: '8px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              fontSize: '1.2rem',
+              cursor: 'pointer',
+              color: '#888',
+              padding: 0,
+              lineHeight: 1,
+            }}
+            aria-label="Clear search"
+          >
+            ×
+          </button>
+        )}
+      </div>
         <div className="d-flex flex-wrap gap-2">
           {['All', ...categories].map(cat => (
             <button
@@ -85,7 +127,7 @@ const TemplateFilterAdmin = ({ templates, categories }: Props) => {
           </thead>
           <tbody>
             {filtered.map(t => (
-              <TemplateItemAdmin key={t.id} template={t} />
+              <TemplateItemAdmin key={t.id} template={t} onTagClick={setSearch}/>
             ))}
           </tbody>
         </Table>
